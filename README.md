@@ -1,4 +1,4 @@
-# 官网地址(下载)：https://xxxx
+# 官网地址(下载)：https://xrpgen.com/download.html
 # A mobile wallet to support Ripple, Stellar and other popular blockchain networks)
 
 Supporting Ripple/Stellar/BTC/ETH multi-chain assets
