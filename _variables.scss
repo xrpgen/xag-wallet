@@ -1,0 +1,83 @@
+/*栅格宽度*/
+$grid-gutter-width: 30px !default;
+/*系统头高度*/
+$header-height: 60px !default;
+/*左菜单的宽度*/
+$left-menu-bar-width: 200px !default;
+/*盒模型组成模式*/
+$box-sizing: border-box !default;
+/*首要颜色*/
+/*$primary-color:             #f59f1e !default;*/
+$primary-color: #4abbe7 !default;
+$primary-color-light: mix(#fff, $primary-color, 90%) !default;
+$primary-color-light-1: mix(#fff, $primary-color, 80%) !default;
+/*辅助颜色*/
+$success-color: #67c23a !default;
+$info-color: #20a0ff !default;
+$warning-color: #eb9e05 !default;
+$danger-color: #fa5555 !default;
+$danger-color-light: mix(#fff, $danger-color, 90%) !default;
+$muted-color: #ccc !default;
+$primay-gradient: #00a6da !default;
+$primay-gradient-light: #00c2c2 !default;
+
+$danger-gradient: #f94342 !default;
+$danger-gradient-light: #fd8023 !default;
+
+$gray-gradient: #a59c9c !default;
+$gray-gradient-light: #c3beba !default;
+
+$eth-gradient: #00a6da !default;
+$eth-gradient-light: #00c2c2 !default;
+$btc-gradient: #f94342 !default;
+$btc-gradient-light: #fd8023 !default;
+$stellar-gradient: #73a8b7;
+$stellar-gradient-light: #a4d2dc;
+$ripple-gradient-light: #4ca5d8;
+$ripple-gradient: #016198;
+$ripplexag-gradient: #0066ff;
+$ripplexag-gradient-light: #0099ff;
+
+$gray-color: #6e7f8d;
+$text-color: #6e7f8d;
+
+/*边框阴影色*/
+$border-shadow-color: #cccccc !default;
+/*边框颜色*/
+$border-color: #e5e5e5 !default;
+/*边框圆角*/
+$border-radius: 4px !default;
+/*主背景色*/
+$main-background-color: #f7f7f7 !default;
+/*辅助背景色*/
+$success-bg-color: $success-color !default;
+$info-bg-color: $info-color !default;
+$warning-bg-color: $warning-color !default;
+$danger-bg-color: $danger-color !default;
+$primary-bg-color: $primary-color !default;
+/*浅色*/
+$dark-white: #f9fafc !default;
+/*字体颜色*/
+$font-color: #353535 !default;
+/*浅字体颜色*/
+$font-color-light: #8d8d8d !default;
+
+$black-gray: #2d2d2d;
+$black-gray-text: #767676;
+$deep-gray-text: #7a7a7a;
+
+// 币的主题色
+$xag-color: #4abbe7;
+$eth-color: #404871;
+$ripple-color: #1273a6;
+/**
+*字体大小
+*/
+$x-small-font: 0.65rem;
+$small-font: 0.75rem;
+$sn-font: 0.78rem;
+$normal-font: 0.88rem;
+$big-font: 1rem;
+$large-font: 1.125rem;
+$x-large-font: 1.25rem;
+$x-x-large-font: 1.7rem;
