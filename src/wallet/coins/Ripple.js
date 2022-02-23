@@ -1,1 +1,601 @@
-import{RippleAPI}from"ripple-lib";import RippleAddress from"ripple-address-codec";import{AccountType,CoinType}from"../constants";import tradingPlatformConfig from"../config/trading-platform";import rippleKeypairs from"ripple-keypairs";import Big from"big.js";class RippleWallet{constructor(e,t={}){e&&this.setServer(e),this.option=t}setServer(e){this.url=e,this.server&&this.server.isConnected()||(this.server=new RippleAPI({server:e,maxFeeXRP:"0.05",timeout:1e4}))}destroy(){this.server&&this.server.isConnected()&&this.server.disconnect()}getInstance(){return this.server}async isActivated(e){return this.server.isConnected()||await this.server.connect(),new Promise(t=>{this.server.getAccountInfo(e).then(()=>{t(!0)}).catch(e=>{e.data&&"actNotFound"===e.data.error&&t(!1)})})}async getBalances(e){this.server.isConnected()||await this.server.connect();try{let t,r=await this.server.getBalances(e),s=[];r.forEach(e=>{e.currency===CoinType.XRP?t={code:e.currency,value:e.value}:s.push({code:e.currency,value:e.value,issuer:e.counterparty||""})});let i=await this.server.getAccountInfo(e);return t.frozenNative=20+5*i.ownerCount,s.unshift(t),s}catch(e){return console.error(e),[{value:"0",code:CoinType.XRP}]}}async isTrustAsset(e,t,r){if(CoinType.XRP===t&&!r)return!0;if(e&&r&&e===r)return!0;let s=await this.server.getTrustlines(e);return!(!s&&0===s.length)&&s.some(e=>e.specification.counterparty===r&&e.specification.currency===t&&"0"!==e.specification.limit)}getTransactions(e,t={}){return new Promise(async(r,s)=>{try{const i=(await this.server.getServerInfo()).completeLedgers.split("-");let n={minLedgerVersion:Number(i[0]),maxLedgerVersion:Number(i[1])};n={...n,...t},r(await this.server.getTransactions(e,n))}catch(e){console.error(e),s(e)}})}sendTransaction(e,t,r,s={}){const i=rippleKeypairs.deriveKeypair(e),n=rippleKeypairs.deriveAddress(i.publicKey);let a=s.assetCode||CoinType.XRP,o={source:{address:n,maxAmount:{value:r,currency:a}},destination:{address:t,amount:{value:r,currency:a}}};if(s.assetIssuer&&(o.destination.amount.counterparty=s.assetIssuer,o.source.maxAmount.counterparty=s.assetIssuer),""!==s.tag){let e=new Number(s.tag);o.destination.tag=e.valueOf()}return new Promise((t,r)=>{this.server.preparePayment(n,o).then(s=>{const{signedTransaction:i}=this.server.sign(s.txJSON,e);this.server.submit(i).then(e=>{console.info(e),t(e)}).catch(e=>{console.info(e),r(e)})})})}async changeTrust(e,t,r,s){const i=rippleKeypairs.deriveKeypair(e),n=rippleKeypairs.deriveAddress(i.publicKey),a={currency:t,counterparty:r,limit:s,ripplingDisabled:!0};return new Promise((t,r)=>{this.server.prepareTrustline(n,a).then(s=>{const{signedTransaction:i}=this.server.sign(s.txJSON,e);this.server.submit(i).then(e=>{console.info(e),t(e)}).catch(e=>{console.info(e),r(e)})})})}isValidAddress(e){return RippleAddress.isValidAddress(e)}isTradingPlatformAddress(e){return tradingPlatformConfig[AccountType.ripple][e]}getAccount(e){let t={entropy:e};const r=rippleKeypairs.generateSeed(t),s=rippleKeypairs.deriveKeypair(r);return{secret:r,address:rippleKeypairs.deriveAddress(s.publicKey)}}getAccountFromSecret(e){const t=rippleKeypairs.deriveKeypair(e);return{secret:e,address:rippleKeypairs.deriveAddress(t.publicKey)}}async queryBook(e,t){return new Promise(async(r,s)=>{try{const i={base:{currency:e.code},counter:{currency:t.code}};let n="";e.issuer&&(n=e.issuer,i.base.counterparty=e.issuer),t.issuer&&(n||(n=t.issuer),i.counter.counterparty=t.issuer),await this.server.getOrderbook(n,i,{limit:150}).then(e=>{let t={asks:[],bids:[]};e.asks.map(e=>{let r=e.specification.quantity.value,s=Number(new Big(e.specification.totalPrice.value).div(e.specification.quantity.value).toFixed(7).toString()).toString();if(e.state&&(r=e.state.fundedAmount.value),Number(r)===Number(0))return;let i={amount:r,price:s},n=t.asks.pop();n?n.price===i.price?(n.amount=Number(new Big(n.amount).add(i.amount).toFixed(7).toString()).toString(),t.asks.push(n)):(t.asks.push(n),t.asks.push(i)):t.asks.push(i)}),e.bids.map(e=>{let r=e.specification.quantity.value,s=Number(new Big(e.specification.totalPrice.value).div(e.specification.quantity.value).toFixed(7).toString()).toString();if(e.state&&(r=e.state.priceOfFundedAmount.value),Number(r)===Number(0))return;let i={amount:r,price:s},n=t.bids.pop();n?n.price===i.price?(n.amount=Number(new Big(n.amount).add(i.amount).toFixed(7).toString()).toString(),t.bids.push(n)):(t.bids.push(n),t.bids.push(i)):t.bids.push(i)}),r(t)}).catch(e=>{console.error(e),s(e)})}catch(e){s(e)}})}async queryOffers(e,t={}){return new Promise(async(r,s)=>{try{let i={};t.limit?i.limit=t.limit:i.limit=200,r(await this.server.getOrders(e,i))}catch(e){s(e)}})}async sendOffer(e,t,r,s,i,n,a){return new Promise(async(o,c)=>{try{let u=Number(new Big(r).times(s).toString()).toFixed(8).toString();const p={direction:a,quantity:{currency:t.code,value:r},totalPrice:{currency:e.code,value:u},passive:!1,fillOrKill:!1};e.issuer&&(p.totalPrice.counterparty=e.issuer),t.issuer&&(p.quantity.counterparty=t.issuer);let l=await this.server.prepareOrder(i,p);const{signedTransaction:d}=this.server.sign(l.txJSON,n);this.server.submit(d).then(e=>{console.info(e),e&&"tesSUCCESS"===e.resultCode?o(e):c(e.resultMessage)}).catch(e=>{console.info(e),c(e)})}catch(e){c(e)}})}async cancelOffer(e,t,r){return new Promise(async(s,i)=>{try{const n={orderSequence:e.id};let a=await this.server.prepareOrderCancellation(t,n);const{signedTransaction:o}=this.server.sign(a.txJSON,r);this.server.submit(o).then(e=>{console.info(e),e&&"tesSUCCESS"===e.resultCode?s(e):i(e.resultMessage)}).catch(e=>{console.info(e),i(e)})}catch(e){i(e)}})}async queryLastBook(e,t,r={}){return new Promise((s,i)=>{try{let n={limit:1,descending:!0};r.descending=n.descending,r.limit&&(n.limit=r.limit);let a=`https://data.ripple.com/v2/exchanges/${e.code}+${e.issuer}/${t.code}+${t.issuer}?limit=${r.limit}&descending=${r.descending}`;r.forAccount&&(a=`https://data.ripple.com/v2/accounts/${r.forAccount}/exchanges?descending=true&limit=200`);let o=new XMLHttpRequest;o.onreadystatechange=(()=>{4===o.readyState&&200===o.status?s(JSON.parse(o.responseText)):400===o.status&&s({data:[]})}),o.open("GET",a),o.send()}catch(e){i(e)}})}async setAccountInfo(e,t,r){try{this.server.isConnected()||await this.server.connect();let s=await this.server.prepareSettings(e,r),i=this.server.sign(s.txJSON,t);return await this.server.submit(i.signedTransaction)}catch(e){console.log(e)}}queryAccountInfo(e){return new Promise(async(t,r)=>{try{t(await this.server.getSettings(e))}catch(e){r(e)}})}}export default RippleWallet;
+import { RippleAPI } from 'ripple-lib';
+import RippleAddress from 'ripple-address-codec';
+import { AccountType, CoinType } from '../constants';
+import tradingPlatformConfig from '../config/trading-platform';
+import rippleKeypairs from 'ripple-keypairs';
+import Big from 'big.js';
+import { fmtCode, realCode } from '../util';
+
+class RippleWallet {
+  constructor(url, option = {}) {
+    if (url) {
+      this.setServer(url);
+    }
+    this.option = option;
+  }
+
+  setServer(url) {
+    this.url = url;
+    if (!this.server || !this.server.isConnected()) {
+      this.server = new RippleAPI({
+        server: url,
+        maxFeeXRP: '0.05',
+        timeout: 10 * 1000
+      });
+    }
+  }
+
+  destroy() {
+    if (this.server) {
+      if (this.server.isConnected()) {
+        this.server.disconnect();
+      }
+    }
+  }
+
+  getInstance() {
+    return this.server;
+  }
+
+  async isActivated(address) {
+    if (!this.server.isConnected()) {
+      await this.server.connect();
+    }
+    return new Promise(resolve => {
+      this.server
+        .getAccountInfo(address)
+        .then(() => {
+          resolve(true);
+        })
+        .catch(e => {
+          if (e.data && e.data.error === 'actNotFound') {
+            resolve(false);
+          }
+        });
+    });
+  }
+
+  // subscribe (address) {
+  //   this.server.connection.on('transaction', (response) => {
+  //     console.info(response);
+  //     store.dispatch('setBalances', address); // 更新余额
+  //   }); // 指定地址发生交易时触发
+  //
+  //   this.server.request('subscribe', { // 监听指定地址
+  //     accounts: [ address ]
+  //   }).then(response => {
+  //     if (response.status === 'success') {
+  //       console.log('Successfully subscribed');
+  //     }
+  //   });
+  // }
+  // async unsubscribe (address) {
+  //   if (!this.server.isConnected()) {
+  //     await this.server.connect();
+  //   }
+  //   this.server.request('unsubscribe', { // 取消监听指定地址
+  //     accounts: [ address ]
+  //   }).then(response => {
+  //     if (response.status === 'success') {
+  //       console.log('Successfully subscribed');
+  //     }
+  //   });
+  // }
+
+  async getBalances(address) {
+    if (!this.server.isConnected()) {
+      await this.server.connect();
+    }
+    try {
+      let ret = await this.server.getBalances(address);
+      let balances = [];
+      let native;
+      ret.forEach(item => {
+        if (item.currency === CoinType.XRP) {
+          native = {
+            code: item.currency,
+            value: item.value
+          };
+        } else {
+          balances.push({
+            code: fmtCode(item.currency),
+            value: item.value,
+            issuer: item.counterparty || ''
+          });
+        }
+      });
+      let accountInfo = await this.server.getAccountInfo(address);
+      native.frozenNative = 20 + 5 * accountInfo.ownerCount;
+      balances.unshift(native);
+      return balances;
+    } catch (e) {
+      console.error(e);
+      return [
+        {
+          value: '0',
+          code: CoinType.XRP
+        }
+      ];
+    }
+  }
+
+  async isTrustAsset(address, assetCode, assetIssuer) {
+    if (CoinType.XRP === assetCode && !assetIssuer) {
+      return true;
+    }
+    if (address && assetIssuer && address === assetIssuer) {
+      return true;
+    }
+    let trustlines = await this.server.getTrustlines(address);
+    // console.info(trustlines);
+    if (!trustlines && trustlines.length === 0) {
+      return false;
+    }
+    assetCode = realCode(assetCode);
+    let flag = trustlines.some(line => {
+      if (
+        line.specification.counterparty === assetIssuer &&
+        line.specification.currency === assetCode
+      ) {
+        return line.specification.limit !== '0';
+      }
+      return false;
+    });
+    return flag;
+  }
+
+  getTransactions(address, option = {}) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const serverInfo = await this.server.getServerInfo();
+        const ledgers = serverInfo.completeLedgers.split('-');
+        const minLedgerVersion = Number(ledgers[0]);
+        const maxLedgerVersion = Number(ledgers[1]);
+        let params = {
+          minLedgerVersion,
+          maxLedgerVersion
+        };
+        params = { ...params, ...option };
+        let transactions = await this.server.getTransactions(address, params);
+        transactions.forEach((item) => {
+          item.outcome.deliveredAmount.currency = fmtCode(item.outcome.deliveredAmount.currency);
+          item.specification.source.maxAmount.currency = fmtCode(item.specification.source.maxAmount.currency);
+        });
+        resolve(transactions);
+      } catch (err) {
+        console.error(err);
+        reject(err);
+      }
+    });
+  }
+
+  sendTransaction(fromSecret, to, amount, option = {}) {
+    const keypair = rippleKeypairs.deriveKeypair(fromSecret);
+    const fromAddress = rippleKeypairs.deriveAddress(keypair.publicKey);
+    let currency = realCode(option.assetCode) || CoinType.XRP;
+    let payment = {
+      source: {
+        address: fromAddress,
+        maxAmount: {
+          value: amount,
+          currency: currency
+        }
+      },
+      destination: {
+        address: to,
+        amount: {
+          value: amount,
+          currency: currency
+        }
+      }
+    };
+    if (option.assetIssuer) {
+      payment.destination.amount.counterparty = option.assetIssuer;
+      payment.source.maxAmount.counterparty = option.assetIssuer;
+    }
+    if (option.tag !== '') {
+      let tag = new Number(option.tag);
+      payment.destination.tag = tag.valueOf();
+    }
+
+    return new Promise((resolve, reject) => {
+      this.server.preparePayment(fromAddress, payment).then(prepared => {
+        const { signedTransaction } = this.server.sign(
+          prepared.txJSON,
+          fromSecret
+        );
+        this.server
+          .submit(signedTransaction)
+          .then(result => {
+            console.info(result);
+            resolve(result);
+          })
+          .catch(err => {
+            console.info(err);
+            reject(err);
+          });
+      });
+    });
+  }
+
+  async changeTrust(fromSecret, code, issuer, limit) {
+    const keypair = rippleKeypairs.deriveKeypair(fromSecret);
+    const fromAddress = rippleKeypairs.deriveAddress(keypair.publicKey);
+    const trustline = {
+      currency: realCode(code),
+      counterparty: issuer,
+      limit: limit,
+      ripplingDisabled: true
+      // ripplingDisabled: ripplingDisabled
+    };
+    // console.info(ripplingDisabled);
+    return new Promise((resolve, reject) => {
+      this.server.prepareTrustline(fromAddress, trustline).then(prepared => {
+        const { signedTransaction } = this.server.sign(
+          prepared.txJSON,
+          fromSecret
+        );
+        this.server
+          .submit(signedTransaction)
+          .then(result => {
+            console.info(result);
+            resolve(result);
+          })
+          .catch(err => {
+            console.info(err);
+            reject(err);
+          });
+      });
+    });
+  }
+
+  isValidAddress(address) {
+    return RippleAddress.isValidAddress(address);
+  }
+
+  isTradingPlatformAddress(address) {
+    let config = tradingPlatformConfig[AccountType.ripple];
+    return config[address];
+  }
+
+  getAccount(key) {
+    let options = { entropy: key };
+    const secret = rippleKeypairs.generateSeed(options);
+    const keypair = rippleKeypairs.deriveKeypair(secret);
+    const address = rippleKeypairs.deriveAddress(keypair.publicKey);
+    return { secret, address };
+  }
+
+  getAccountFromSecret(secret) {
+    const keypair = rippleKeypairs.deriveKeypair(secret);
+    const address = rippleKeypairs.deriveAddress(keypair.publicKey);
+    return { secret, address };
+  }
+
+  /**
+   * 查询交易对的挂单记录
+   * @param baseBuy （基础货币，包含code和合约）
+   * @param counterSelling (对手货币，包含code和合约)
+   * @returns {Promise<any>}
+   */
+  async queryBook(baseBuy, counterSelling) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        baseBuy.code = realCode(baseBuy.code);
+        counterSelling.code = realCode(counterSelling.code);
+        const orderbook = {
+          base: {
+            currency: baseBuy.code
+          },
+          counter: {
+            currency: counterSelling.code
+          }
+        };
+        let address = '';
+        if (baseBuy.issuer) {
+          address = baseBuy.issuer;
+          orderbook.base.counterparty = baseBuy.issuer;
+        }
+        if (counterSelling.issuer) {
+          if (!address) {
+            address = counterSelling.issuer;
+          }
+          orderbook.counter.counterparty = counterSelling.issuer;
+        }
+        await this.server
+          .getOrderbook(address, orderbook, { limit: 150 })
+          .then(data => {
+            let result = {
+              asks: [],
+              bids: []
+            };
+            data.asks.map(ret => {
+              let amount = ret.specification.quantity.value;
+              let price = Number(
+                new Big(ret.specification.totalPrice.value)
+                  .div(ret.specification.quantity.value)
+                  .toFixed(7)
+                  .toString()
+              ).toString();
+              if (ret.state) {
+                amount = ret.state.fundedAmount.value;
+              }
+              if (Number(amount) === Number(0)) {
+                return;
+              }
+              let r = {
+                amount: amount,
+                price: price
+              };
+              let pop = result.asks.pop();
+              if (!pop) {
+                result.asks.push(r);
+              } else {
+                if (pop.price === r.price) {
+                  pop.amount = Number(
+                    new Big(pop.amount)
+                      .add(r.amount)
+                      .toFixed(7)
+                      .toString()
+                  ).toString();
+                  result.asks.push(pop);
+                } else {
+                  result.asks.push(pop);
+                  result.asks.push(r);
+                }
+              }
+            });
+            data.bids.map(ret => {
+              let amount = ret.specification.quantity.value;
+              let price = Number(
+                new Big(ret.specification.totalPrice.value)
+                  .div(ret.specification.quantity.value)
+                  .toFixed(7)
+                  .toString()
+              ).toString();
+              if (ret.state) {
+                amount = ret.state.priceOfFundedAmount.value;
+              }
+              if (Number(amount) === Number(0)) {
+                return;
+              }
+              let r = {
+                amount: amount,
+                price: price
+              };
+              let pop = result.bids.pop();
+              if (!pop) {
+                result.bids.push(r);
+              } else {
+                if (pop.price === r.price) {
+                  pop.amount = Number(
+                    new Big(pop.amount)
+                      .add(r.amount)
+                      .toFixed(7)
+                      .toString()
+                  ).toString();
+                  result.bids.push(pop);
+                } else {
+                  result.bids.push(pop);
+                  result.bids.push(r);
+                }
+              }
+            });
+            resolve(result);
+          })
+          .catch(err => {
+            console.error(err);
+            reject(err);
+          });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   * 查询我的委托单
+   * @param address (账户地址)
+   * @param optional (可选项)
+   * @returns {Promise<any>}
+   */
+  async queryOffers(address, optional = {}) {
+    //console.debug('offers', address);
+    return new Promise(async (resolve, reject) => {
+      try {
+        let options = {};
+        if (!optional.limit) {
+          options.limit = 200;
+        } else {
+          options.limit = optional.limit;
+        }
+        let page = await this.server.getOrders(address, options);
+        page.forEach((item) => {
+          item.specification.quantity.currency = fmtCode(item.specification.quantity.currency);
+          item.specification.totalPrice.currency = fmtCode(item.specification.totalPrice.currency);
+        });
+        //console.info(page);
+        resolve(page);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   * 发起挂单交易请求
+   * @param selling (卖方数据)
+   * @param buying (买方数据)
+   * @param amount (数量)
+   * @param price (单价)
+   * @param address (账户地址)
+   * @param fromSecret (账户私钥)
+   * @param direction (方向-买入还是卖出)
+   * @returns {Promise<any>}
+   */
+  async sendOffer(
+    selling,
+    buying,
+    amount,
+    price,
+    address,
+    fromSecret,
+    direction
+  ) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        buying.code = realCode(buying.code);
+        selling.code = realCode(selling.code);
+        let totalPrice = Number(new Big(amount).times(price).toString())
+          .toFixed(8)
+          .toString();
+        const order = {
+          direction: direction,
+          quantity: {
+            currency: buying.code,
+            value: amount
+          },
+          totalPrice: {
+            currency: selling.code,
+            value: totalPrice
+          },
+          passive: false,
+          fillOrKill: false
+        };
+        if (selling.issuer) {
+          order.totalPrice.counterparty = selling.issuer;
+        }
+        if (buying.issuer) {
+          order.quantity.counterparty = buying.issuer;
+        }
+        let prepared = await this.server.prepareOrder(address, order);
+        const { signedTransaction } = this.server.sign(
+          prepared.txJSON,
+          fromSecret
+        );
+        this.server
+          .submit(signedTransaction)
+          .then(result => {
+            console.info(result);
+            if (result && result.resultCode === 'tesSUCCESS') {
+              resolve(result);
+            } else {
+              reject(result.resultMessage);
+            }
+          })
+          .catch(err => {
+            console.info(err);
+            reject(err);
+          });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   * 撤单操作
+   * @param offer
+   * @param address
+   * @param fromSecret
+   * @returns {Promise<any>}
+   */
+  async cancelOffer(offer, address, fromSecret) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const orderCancellation = { orderSequence: offer.id };
+        let prepared = await this.server.prepareOrderCancellation(
+          address,
+          orderCancellation
+        );
+        const { signedTransaction } = this.server.sign(
+          prepared.txJSON,
+          fromSecret
+        );
+        this.server
+          .submit(signedTransaction)
+          .then(result => {
+            console.info(result);
+            if (result && result.resultCode === 'tesSUCCESS') {
+              resolve(result);
+            } else {
+              reject(result.resultMessage);
+            }
+          })
+          .catch(err => {
+            console.info(err);
+            reject(err);
+          });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  async queryLastBook(baseBuy, counterSelling, optional = {}) {
+    return new Promise((resolve, reject) => {
+      try {
+        let options = { limit: 1, descending: true };
+        optional.descending = options.descending;
+        if (optional.limit) {
+          options.limit = optional.limit;
+        }
+        baseBuy.code = realCode(baseBuy.code);
+        counterSelling.code = realCode(counterSelling.code);
+        let url = `https://data.ripple.com/v2/exchanges/${baseBuy.code}+${
+          baseBuy.issuer
+        }/${counterSelling.code}+${counterSelling.issuer}?limit=${
+          optional.limit
+        }&descending=${optional.descending}`;
+        if (optional.forAccount) {
+          url = `https://data.ripple.com/v2/accounts/${
+            optional.forAccount
+          }/exchanges?descending=true&limit=200`;
+          //url = `https://data.ripple.com/v2/accounts/${optional.forAccount}/exchanges?/${baseBuy.code}+${baseBuy.issuer}/${counterSelling.code}+${counterSelling.issuer}?limit=${optional.limit}&descending=${optional.descending}`;
+        }
+        let xmlhttp = new XMLHttpRequest(); // 创建异步请求
+        xmlhttp.onreadystatechange = () => {
+          if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            resolve(JSON.parse(xmlhttp.responseText));
+          } else if (xmlhttp.status === 400) {
+            resolve({ data: [] });
+          }
+        };
+        xmlhttp.open('GET', url);
+        xmlhttp.send();
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  // 设置账户信息的方法
+  async setAccountInfo(address, secret, setConfig) {
+    try {
+      if (!this.server.isConnected()) {
+        await this.server.connect();
+      }
+      let prepared = await this.server.prepareSettings(address, setConfig);
+      let tx = this.server.sign(prepared.txJSON, secret);
+      let result = await this.server.submit(tx.signedTransaction);
+      // if (result && result.resultCode === 'tesSUCCESS') {
+
+      // }
+      return result;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  // 查询账户信息的方法
+  queryAccountInfo(address) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let setting = await this.server.getSettings(address);
+        resolve(setting);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+}
+export default RippleWallet;

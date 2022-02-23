@@ -71,6 +71,8 @@ import tokenConfigHepler from "src/core/utils/tokenConfigHepler";
 import cryptor from "core/utils/cryptor";
 import Big from "big.js";
 import hidden from "../mixns/hidden-icon";
+import { realCode } from "src/wallet/util";
+
 export default {
   mixins: [asset, hidden],
   components: { passwordDialog },
@@ -292,7 +294,7 @@ export default {
             let line = trustlines[i];
             if (
               line.specification.counterparty === asset.issuer &&
-              line.specification.currency === asset.code
+              line.specification.currency === realCode(asset.code)
             ) {
               flag1 = true;
               if (line.specification.limit === "0") {
@@ -308,7 +310,7 @@ export default {
           flag = !trustlines.some(line => {
             if (
               line.specification.counterparty === asset.issuer &&
-              line.specification.currency === asset.code &&
+              line.specification.currency === realCode(asset.code) &&
               line.specification.limit !== "0"
             ) {
               return true;

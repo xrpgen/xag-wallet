@@ -28,8 +28,8 @@ export default{
                 ret.push({
                   code: item.code,
                   issuer: item.issuer,
-                  name: gateway.name,
-                  logo: gateway.logo
+                  name: item.issuer || gateway.name,
+                  logo: item.logo || gateway.logo
                 });
               }
             });
@@ -46,8 +46,8 @@ export default{
                 ret.push({
                   code: item.code,
                   issuer: item.issuer,
-                  name: gateway.name,
-                  logo: gateway.logo
+                  name: item.issuer || gateway.name,
+                  logo: item.logo || gateway.logo
                 });
               }
             });
