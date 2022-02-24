@@ -51,6 +51,7 @@
 import coins from "src/wallet/coins";
 import { AccountType } from "src/wallet/constants";
 import tokens from "src/wallet/tokens";
+import { realCode } from "src/wallet/util";
 export default {
   data() {
     return {
@@ -80,7 +81,8 @@ export default {
     "form.symbol"() {
       if (this.form.symbol) {
         let re = /^([a-zA-Z0-9<>(){}[\]|?!@#$%^&*]{3}|[A-F0-9]{40}|drops)$/;
-        this.symbolValid = re.test(this.form.symbol);
+        let symbol = realCode(this.form.symbol);
+        this.symbolValid = re.test(symbol);
         this.isAssetExist();
       } else {
         this.symbolValid = false;

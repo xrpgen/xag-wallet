@@ -1,1 +1,616 @@
-import StellarSdk from"stellar-sdk";import{AccountType,CoinType}from"../constants";import tradingPlatformConfig from"../config/trading-platform";const round=function(e,t){return e=t?Math.round(e*Math.pow(10,t))/Math.pow(10,t):Math.round(e)},_seq={snapshot:"",time:new Date};class StellarWallet{constructor(e,t={}){e&&this.setServer(e),this.option=t}setServer(e,t){this.url=e,this.server=new StellarSdk.Server(e),"https://horizon.stellar.org"===e?StellarSdk.Network.usePublicNetwork():"https://horizon-testnet.stellar.org"===e?StellarSdk.Network.useTestNetwork():StellarSdk.Network.use(new StellarSdk.Network(t))}destroy(){}getInstance(){return this.server}async isActivated(e){try{return await this.server.accounts().accountId(e).call(),!0}catch(e){if(404===e.response.status&&"Resource Missing"===e.response.title)return!1}}async getBalances(e){try{let t,s=await this.server.loadAccount(e),r=[];return s.balances.forEach(e=>{"native"===e.asset_type?t={code:CoinType.XLM,value:e.balance}:r.push({code:e.asset_code,value:e.balance,issuer:e.asset_issuer})}),t.frozenNative=.5*s.subentry_count+1,r.unshift(t),r}catch(e){return[{value:"0",code:CoinType.XLM}]}}async isTrustAsset(e,t,s){if(CoinType.XLM===t&&!s)return!0;if(e&&s&&e===s)return!0;let r=await this.getBalances(e);return!(!r&&0===r.length)&&r.some(e=>e.issuer===s&&e.code===t)}async getTransactions(e,t={}){return new Promise(async(s,r)=>{try{let a=this.server.payments().forAccount(e).order(t.order||"desc");t.limit&&(a=a.limit(t.limit)),t.cursor&&(a=a.cursor(t.cursor)),s((await a.call()).records)}catch(e){r(e)}})}async getTransaction(e){let t=await this.server.operations().forTransaction(e).call();return t&&t.records&&t.records.length>0?await t.records[0].transaction():null}async sendTransaction(e,t,s,r={}){const a=StellarSdk.Keypair.fromSecret(e),n=a.publicKey(),i=await this.isActivated(t);s=round(s,7);const o=await this.server.loadAccount(n);let c,l;c=r.assetCode&&r.assetIssuer?new StellarSdk.Asset(r.assetCode,r.assetIssuer):StellarSdk.Asset.native(),l=i?StellarSdk.Operation.payment({destination:t,asset:c,amount:s.toString()}):StellarSdk.Operation.createAccount({destination:t,startingBalance:s.toString()});let d=new StellarSdk.TransactionBuilder(o);if(d.addOperation(l),r.memo){const e=new StellarSdk.Memo(r.memoType,r.memo);d.addMemo(e)}let u=d.build();return u.sign(a),this.server.submitTransaction(u)}async changeTrust(e,t,s,r){const a=StellarSdk.Keypair.fromSecret(e),n=a.publicKey(),i=new StellarSdk.Asset(t,s);console.debug("Turst asset",i,r);const o=await this.server.loadAccount(n),c=StellarSdk.Operation.changeTrust({asset:i,limit:r||"0"});let l=new StellarSdk.TransactionBuilder(o).addOperation(c).build();return l.sign(a),this.server.submitTransaction(l)}isValidAddress(e){return StellarSdk.StrKey.isValidEd25519PublicKey(e)}isValidMemo(e,t){try{return new StellarSdk.Memo(e,t),""}catch(e){return e.message}}isTradingPlatformAddress(e){return tradingPlatformConfig[AccountType.stellar][e]}getAccount(e){const t=StellarSdk.Keypair.fromRawEd25519Seed(e),s=t.publicKey();return{secret:t.secret(),address:s}}getAccountFromSecret(e){return{secret:e,address:StellarSdk.Keypair.fromSecret(e).publicKey()}}getAsset(e,t){let s;return"object"==typeof e&&(t=e.issuer,e=e.code),s=e&&t?new StellarSdk.Asset(e,t):StellarSdk.Asset.native()}compareAsset(e,t){if(e.issuer||t.issuer){if(e.issuer===t.issuer&&e.code===t.code)return!0}else if(e.code===t.code)return!0;return!1}async getExchangePath(e,t,s,r,a){return new Promise(async(n,i)=>{try{await this.server.paths(e,t,this.getAsset(s,r),a).call().then(e=>{n(e)}).catch(e=>{console.info(e),i(this.getErrMsg(e))})}catch(e){i(this.getErrMsg(e))}})}async pathPayment(e,t,s){return new Promise(async(r,a)=>{try{const n=e.origin.path.map(e=>"native"==e.asset_type?new StellarSdk.Asset.native:new StellarSdk.Asset(e.asset_code,e.asset_issuer));let i=1.0001,o=e.origin.source_amount;o=round(i*o,7).toString(),this.server.loadAccount(t).then(r=>{const a=StellarSdk.Operation.pathPayment({destination:t,sendAsset:this.getAsset(e.srcCode,e.srcIssuer),sendMax:o,destAsset:this.getAsset(e.dstCode,e.dstIssuer),destAmount:e.origin.destination_amount,path:n}),i=new StellarSdk.TransactionBuilder(r).addOperation(a).build();let c=StellarSdk.Keypair.fromSecret(s);return i.sign(c),i}).then(e=>this.server.submitTransaction(e)).then(e=>{r(e.hash)}).catch(e=>{a(this.getErrMsg(e))})}catch(e){a(this.getErrMsg(e))}})}async queryBook(e,t){return console.debug("orderbook",`${e.code}/${t.code}`),new Promise(async(s,r)=>{try{await this.server.orderbook(this.getAsset(e),this.getAsset(t)).call().then(e=>{s(e)}).catch(s=>{console.error(s,`${e.code}/${t.code}`),r(this.getErrMsg(s))})}catch(e){r(this.getErrMsg(e))}})}async queryLastBook(e,t,s={}){return new Promise(async(r,a)=>{if(s.forAccount)try{let n=this.server.trades().forAssetPair(this.getAsset(e),this.getAsset(t)).forAccount(s.forAccount).order(s.order||"desc");s.limit&&(n=n.limit(s.limit)),s.cursor&&(n=n.cursor(s.cursor));let i=await n.call(),o=[];i.records&&i.records.forEach(s=>{let r=this.getAsset(s.base_asset_code,s.base_asset_issuer),a=this.getAsset(s.counter_asset_code,s.counter_asset_issuer);this.compareAsset(r,this.getAsset(e))&&this.compareAsset(a,this.getAsset(t))?o.push(s):this.compareAsset(a,this.getAsset(e))&&this.compareAsset(r,this.getAsset(t))&&o.push(s)}),r(o)}catch(e){a(e)}else try{let n=this.server.trades().forAssetPair(this.getAsset(e),this.getAsset(t)).order(s.order||"desc");s.limit&&(n=n.limit(s.limit)),s.cursor&&(n=n.cursor(s.cursor)),r((await n.call()).records)}catch(e){a(e)}})}async sendOffer(e,t,s,r,a,n){return new Promise(async(i,o)=>{try{this.server.loadAccount(a).then(a=>{const i=StellarSdk.Operation.manageOffer({selling:this.getAsset(e.code,e.issuer),buying:this.getAsset(t.code,t.issuer),amount:round(s,7).toString(),price:r.toString()}),o=new StellarSdk.TransactionBuilder(a).addOperation(i).build();let c=StellarSdk.Keypair.fromSecret(n);return o.sign(c),o}).then(e=>this.server.submitTransaction(e)).then(e=>{i(e.hash)}).catch(e=>{o(this.getErrMsg(e))})}catch(e){o(this.getErrMsg(e))}})}async queryOffers(e,t={}){return console.debug("offers",e),new Promise(async(s,r)=>{try{let a=this.server.offers("accounts",e);a=t.limit?a.limit(t.limit):a.limit(200),s((await a.call()).records)}catch(e){r(e)}})}_updateSeq(e){const t=new Date;if(t-_seq.time<5e3)for(;e.sequence<=_seq.snapshot;)e.incrementSequenceNumber(),console.debug("Sequence: "+_seq.snapshot+" -> "+e.sequence);_seq.snapshot=e.sequence,_seq.time=t}async cancelOffer(e,t,s){return new Promise(async(r,a)=>{try{this.server.loadAccount(t).then(t=>{this._updateSeq(t);const r=StellarSdk.Operation.manageOffer({selling:this.getAsset(e.selling.code,e.selling.issuer),buying:this.getAsset(e.buying.code,e.buying.issuer),amount:"0",price:e.price.toString(),offerId:e.id}),a=new StellarSdk.TransactionBuilder(t).addOperation(r).build();let n=StellarSdk.Keypair.fromSecret(s);return a.sign(n),a}).then(e=>this.server.submitTransaction(e)).then(e=>{r(e.hash)}).catch(e=>{a(this.getErrMsg(e))})}catch(e){a(this.getErrMsg(e))}})}async queryOfferHistorys(e,t={}){return new Promise(async(s,r)=>{try{let a=await this.server.transactions().forAccount(e).order(t.order||"desc");a=t.limit?a.limit(t.limit):a.limit(20);let n=await a.call(),i=[];for(const e of n.records){let t=new StellarSdk.Transaction(e.envelope_xdr);i.push(t.operations[0])}s(i)}catch(e){r(e)}})}getErrMsg(e){let t="";if(e instanceof StellarSdk.NotFoundError)t="NotFoundError";else if(e.response&&e.response.extras&&e.response.extras.reason)t=e.response.extras.reason;else if(e.response&&e.response.data&&e.response.data.extras&&e.response.data.extras.result_xdr){const s=StellarSdk.xdr.TransactionResult.fromXDR(e.response.data.extras.result_xdr,"base64");t=s.result().results()?s.result().results()[0].value().value().switch().name:s.result().switch().name}else t=e.detail||e.message;return t||console.error("Fail in getErrMsg",e),t}}export default StellarWallet;
+import StellarSdk from 'stellar-sdk';
+import {AccountType, CoinType} from '../constants';
+import tradingPlatformConfig from "../config/trading-platform";
+// import store from 'core/store';
+
+const round = function(dight, howMany) {
+  if(howMany) {
+    dight = Math.round(dight * Math.pow(10, howMany)) / Math.pow(10, howMany);
+  } else {
+    dight = Math.round(dight);
+  }
+  return dight;
+};
+const _seq = {
+  snapshot : "",
+  time : new Date()
+};
+class StellarWallet {
+  constructor(url, option = {}) {
+    if (url) {
+      this.setServer(url);
+    }
+    this.option = option;
+  }
+
+  setServer (url, passphrase) {
+    this.url = url;
+    this.server = new StellarSdk.Server(url);
+    if (url === 'https://horizon.stellar.org') {
+      StellarSdk.Network.usePublicNetwork();
+    } else if (url === 'https://horizon-testnet.stellar.org') {
+      StellarSdk.Network.useTestNetwork();
+    } else {
+      StellarSdk.Network.use(new StellarSdk.Network(passphrase));
+    }
+  }
+
+  destroy () {}
+
+  getInstance () {
+    return this.server;
+  }
+
+  async isActivated (address) {
+    try {
+      await this.server.accounts().accountId(address).call();
+      return true;
+    } catch(e) {
+      if (e.response.status === 404 && e.response.title === 'Resource Missing') {
+        return false;
+      }
+    }
+  }
+
+  async getBalances (address) {
+    try {
+      let ret = await this.server.loadAccount(address);
+      let balances = [];
+      let native;
+      ret.balances.forEach(item => {
+        if (item.asset_type === 'native') {
+          native = {
+            code: CoinType.XLM,
+            value: item.balance
+          };
+        } else {
+          balances.push({
+            code: item.asset_code,
+            value: item.balance,
+            issuer: item.asset_issuer
+          });
+        }
+      });
+      native.frozenNative = ret.subentry_count * 0.5 + 1;
+      balances.unshift(native);
+      return balances;
+    } catch (e) {
+      return [{
+          value: '0',
+          code: CoinType.XLM
+        }
+      ];
+    }
+  }
+
+  async isTrustAsset(address, assetCode, assetIssuer) {
+    if (CoinType.XLM === assetCode && !assetIssuer) {
+      return true;
+    }
+    if (address && assetIssuer && address === assetIssuer) {
+      return true;
+    }
+    let balances = await  this.getBalances(address);
+    if (!balances && balances.length === 0) {
+      return false;
+    }
+    let flag = balances.some(item => {
+      if (item.issuer === assetIssuer && item.code === assetCode) {
+        return true;
+      }
+      return false;
+    });
+    return flag;
+  }
+
+  // subscribe (address) {
+  //   if (this._closeAccountStream) {
+  //     this._closeAccountStream();
+  //     this._closeAccountStream = undefined;
+  //   }
+  //   this._closeAccountStream = this.server.accounts().accountId(address).stream({
+  //     onmessage: (res) => {
+  //       let flag  = true;
+  //       res.balances.forEach(item => {
+  //         let assetType = item.asset_type;
+  //         if (assetType === 'native') {
+  //           assetType = CoinType.XLM;
+  //         }
+  //         let balance = store.state.balances[assetType];
+  //         if (item.balance !== balance) {
+  //           flag = false;
+  //           return;
+  //         }
+  //       });
+  //
+  //       if(!flag) {
+  //         // console.info(res.balances);
+  //         store.dispatch('setBalances', address); // 更新余额
+  //       }
+  //     }
+  //   });
+  // }
+  //
+  // unsubscribe () {
+  //   if (this._closeAccountStream) {
+  //     this._closeAccountStream();
+  //     this._closeAccountStream = undefined;
+  //   }
+  // }
+
+  async getTransactions (address, option = {}) {
+    return new Promise(async (resolve, reject)=>{
+      try {
+        let action =  this.server.payments().forAccount(address).order(option.order || 'desc');
+        if (option.limit) {
+          action = action.limit(option.limit);
+        }
+        if (option.cursor) {
+          action = action.cursor(option.cursor);
+        }
+        let page = await action.call();
+        resolve(page.records);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  async getTransaction (txHash) {
+    let operations = await this.server.operations().forTransaction(txHash).call();
+    if (operations && operations.records && operations.records.length > 0) {
+      return await operations.records[0].transaction();
+    }
+    return null;
+  }
+
+  async sendTransaction (fromSecret, to, amount, option = {}) {
+    const fromPair = StellarSdk.Keypair.fromSecret(fromSecret);
+    const fromAddress = fromPair.publicKey();
+
+    const activated = await this.isActivated(to);
+
+
+    amount = round(amount, 7);
+    const account = await this.server.loadAccount(fromAddress);
+
+    let asset;
+    if (option.assetCode && option.assetIssuer) {
+      asset = new StellarSdk.Asset(option.assetCode, option.assetIssuer);
+    } else {
+      asset = StellarSdk.Asset.native();
+    }
+    let payment;
+    if (activated) {
+      payment = StellarSdk.Operation.payment({
+        destination: to,
+        asset: asset,
+        amount: amount.toString()
+      });
+    } else {
+      payment = StellarSdk.Operation.createAccount({
+        destination: to,
+        startingBalance: amount.toString()
+      });
+    }
+
+    let txBuilder = new StellarSdk.TransactionBuilder(account);
+    txBuilder.addOperation(payment);
+    if (option.memo) {
+      const memo = new StellarSdk.Memo(option.memoType, option.memo);
+      txBuilder.addMemo(memo);
+    }
+
+    let tx = txBuilder.build();
+    tx.sign(fromPair);
+    return this.server.submitTransaction(tx);
+  }
+
+  async changeTrust(fromSecret, code, issuer, limit) {
+    const fromPair = StellarSdk.Keypair.fromSecret(fromSecret);
+    const address = fromPair.publicKey();
+    const asset = new StellarSdk.Asset(code, issuer);
+    console.debug('Turst asset', asset, limit);
+    const account = await this.server.loadAccount(address);
+    const op = StellarSdk.Operation.changeTrust({
+      asset: asset,
+      limit: limit || '0'
+    });
+    let tx = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
+    tx.sign(fromPair);
+    return this.server.submitTransaction(tx);
+  }
+
+  isValidAddress (address) {
+    return StellarSdk.StrKey.isValidEd25519PublicKey(address);
+  }
+
+  isValidMemo(type, memo) {
+    try {
+      new StellarSdk.Memo(type, memo);
+      return '';
+    } catch (e) {
+      return e.message;
+    }
+  }
+
+  isTradingPlatformAddress (address) {
+    let config = tradingPlatformConfig[AccountType.stellar];
+    return config[address];
+  }
+
+  getAccount(key) {
+    const keypair =  StellarSdk.Keypair.fromRawEd25519Seed(key);
+    const address = keypair.publicKey();
+    const secret = keypair.secret();
+    return { secret, address };
+  }
+
+  getAccountFromSecret(secret) {
+    const keypair = StellarSdk.Keypair.fromSecret(secret);
+    const address = keypair.publicKey();
+    return { secret, address };
+  }
+
+  /**
+   * 通过StellarSdk API对资产进行相应的转换
+   * @param code 资产代码（简称）
+   * @param issuer （资产合约，XLM是空）
+   * @returns {*}
+   */
+  getAsset (code, issuer) {
+    if (typeof code == 'object') {
+      issuer = code.issuer;
+      code = code.code;
+    }
+    let asset;
+    if (code && issuer) {
+      asset = new StellarSdk.Asset(code, issuer);
+    } else {
+      asset = StellarSdk.Asset.native();
+    }
+    return asset;
+  }
+  /**
+   * 判断两个资产是否是同一个
+   * @param code 资产代码（简称）
+   * @param issuer （资产合约，XLM是空）
+   * @returns {*}
+   */
+  compareAsset (asset1, asset2) {
+    if (asset1.issuer || asset2.issuer) {
+      if (asset1.issuer === asset2.issuer
+      && asset1.code === asset2.code) {
+        return true;
+      }
+    }else {
+      if (asset1.code === asset2.code) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * 获取兑换path，返回数组形式
+   * @param src （兑换原地址）
+   * @param dest （兑换目标地址）
+   * @param code （当前资产的code，简称）
+   * @param issuer （当前资产合约，xlm是空）
+   * @param amount （兑换金额）
+   * @returns {Promise<any>}
+   */
+  async getExchangePath (src, dest, code, issuer, amount) {
+    return new Promise(async (resolve, reject)=>{
+      try {
+        await this.server.paths(src, dest, this.getAsset(code, issuer), amount).call().then((data) => {
+          resolve(data);
+        }).catch((err) => {
+          console.info(err);
+          reject(this.getErrMsg(err));
+        });
+      } catch (err) {
+        reject(this.getErrMsg(err));
+      }
+    });
+  }
+
+  /**
+   * 进行兑换
+   * @param alt （各种参数，getPath获得）
+   * @param address （当前账户的stellar地址）
+   * @param fromSecret （当前账户的stellar私钥）
+   * @returns {Promise<any>}
+   */
+  async pathPayment (alt, address, fromSecret) {
+    return new Promise(async (resolve, reject)=>{
+      try {
+        const path = alt.origin.path.map((item) => {
+          if (item.asset_type == 'native') {
+            return new StellarSdk.Asset.native();
+          } else {
+            return new StellarSdk.Asset(item.asset_code, item.asset_issuer);
+          }
+        });
+        let max_rate = 1.0001; // 波动差, 因为市场是波动的
+        let sendMax = alt.origin.source_amount;
+        sendMax = round(max_rate * sendMax, 7).toString();
+        this.server.loadAccount(address).then((account) => {
+          const pathPayment = StellarSdk.Operation.pathPayment({
+            destination: address,
+            sendAsset  : this.getAsset(alt.srcCode, alt.srcIssuer),
+            sendMax    : sendMax,
+            destAsset  : this.getAsset(alt.dstCode, alt.dstIssuer),
+            destAmount : alt.origin.destination_amount,
+            path       : path
+          });
+          const transaction = new StellarSdk.TransactionBuilder(account).addOperation(pathPayment).build();
+          let keypair = StellarSdk.Keypair.fromSecret(fromSecret);
+          transaction.sign(keypair);
+          return transaction;
+        }).then(transaction => {
+          return this.server.submitTransaction(transaction);
+        }).then(txResult => {
+          resolve(txResult.hash);
+        }).catch((err) => {
+          reject(this.getErrMsg(err));
+        });
+      } catch (err) {
+        reject(this.getErrMsg(err));
+      }
+    });
+  }
+
+  /**
+   * 查询交易对的挂单记录
+   * @param baseBuy （基础货币，包含code和合约）
+   * @param counterSelling (对手货币，包含code和合约)
+   * @returns {Promise<any>}
+   */
+  async queryBook (baseBuy, counterSelling) {
+    console.debug('orderbook', `${baseBuy.code}/${counterSelling.code}`);
+    return new Promise(async (resolve, reject)=>{
+      try {
+        await this.server.orderbook(this.getAsset(baseBuy), this.getAsset(counterSelling)).call().then((data) => {
+          resolve(data);
+        }).catch((err) => {
+          console.error(err, `${baseBuy.code}/${counterSelling.code}`);
+          reject(this.getErrMsg(err));
+        });
+      } catch (err) {
+        reject(this.getErrMsg(err));
+      }
+    });
+
+  }
+
+  /**
+   * 查询交易对的最近成交历史
+   * @param baseBuy （基础货币，包含code和合约）
+   * @param counterSelling (对手货币，包含code和合约)
+   * @param optional （可选项）
+   * @returns {Promise<any>}
+   */
+  async queryLastBook (baseBuy, counterSelling, optional = {}) {
+    return new Promise(async (resolve, reject)=>{
+      //my last book
+      if (optional.forAccount) {
+        try {
+          let action = this.server.trades().forAssetPair(this.getAsset(baseBuy), this.getAsset(counterSelling))
+            .forAccount(optional.forAccount)
+            .order(optional.order || 'desc');
+          if (optional.limit) {
+            action = action.limit(optional.limit);
+          }
+          if (optional.cursor) {
+            action = action.cursor(optional.cursor);
+          }
+          let page = await action.call();
+          let records=[];
+          if (page.records) {
+            page.records.forEach((item) => {
+              let baseAsset = this.getAsset(item.base_asset_code,item.base_asset_issuer);
+              let counterAsset = this.getAsset(item.counter_asset_code,item.counter_asset_issuer);
+              if (this.compareAsset(baseAsset,this.getAsset(baseBuy))
+                && this.compareAsset(counterAsset,this.getAsset(counterSelling))){
+                records.push(item);
+              }else if(this.compareAsset(counterAsset,this.getAsset(baseBuy))
+                && this.compareAsset(baseAsset,this.getAsset(counterSelling))){
+                records.push(item);
+              }
+            });
+          }
+          resolve(records);
+        } catch (err) {
+          reject(err);
+        }
+      }else {
+        try {
+          let action =  this.server.trades().forAssetPair(this.getAsset(baseBuy), this.getAsset(counterSelling)).order(optional.order || 'desc');
+          if (optional.limit) {
+            action = action.limit(optional.limit);
+          }
+          if (optional.cursor) {
+            action = action.cursor(optional.cursor);
+          }
+          let page = await action.call();
+          resolve(page.records);
+        } catch (err) {
+          reject(err);
+        }
+      }
+    });
+  }
+
+  /**
+   * 发起挂单交易请求
+   * @param selling (卖方数据)
+   * @param buying (买方数据)
+   * @param amount (数量)
+   * @param price (价格)
+   * @param address (账户地址)
+   * @param fromSecret (账户私钥)
+   * @returns {Promise<any>}
+   */
+  async sendOffer(selling, buying, amount, price , address, fromSecret) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        this.server.loadAccount(address).then((account) => {
+          const op = StellarSdk.Operation.manageOffer({
+            selling: this.getAsset(selling.code, selling.issuer),
+            buying: this.getAsset(buying.code, buying.issuer),
+            amount: round(amount, 7).toString(),
+            price : price.toString()
+          });
+          const transaction = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
+          let keypair = StellarSdk.Keypair.fromSecret(fromSecret);
+          transaction.sign(keypair);
+          return transaction;
+        }).then(transaction => {
+          return this.server.submitTransaction(transaction);
+        }).then(txResult => {
+          resolve(txResult.hash);
+        }).catch((err) => {
+          reject(this.getErrMsg(err));
+        });
+      } catch (err) {
+        reject(this.getErrMsg(err));
+      }
+    });
+  }
+
+  /**
+   * 查询我的委托单
+   * @param address (账户地址)
+   * @param optional (可选项)
+   * @returns {Promise<any>}
+   */
+  async queryOffers (address, optional = {}) {
+    console.debug('offers', address);
+    return new Promise(async (resolve, reject)=>{
+      try {
+        let action =  this.server.offers('accounts', address);
+        if (optional.limit) {
+          action = action.limit(optional.limit);
+        } else {
+          action = action.limit(200);
+        }
+        let page = await action.call();
+        resolve(page.records);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  _updateSeq(account) {
+    const now = new Date();
+    // In the same ledger
+    if (now - _seq.time < 5000) {
+      for (;account.sequence <= _seq.snapshot;) {
+        account.incrementSequenceNumber();
+        console.debug('Sequence: ' + _seq.snapshot + ' -> ' + account.sequence);
+      }
+    }
+    _seq.snapshot = account.sequence;
+    _seq.time = now;
+  }
+
+  /**
+   * 撤单操作
+   * @param offer
+   * @param address
+   * @param fromSecret
+   * @returns {Promise<any>}
+   */
+  async cancelOffer (offer , address, fromSecret) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        this.server.loadAccount(address).then((account) => {
+          this._updateSeq(account);
+          const op = StellarSdk.Operation.manageOffer({
+            selling: this.getAsset(offer.selling.code, offer.selling.issuer),
+            buying: this.getAsset(offer.buying.code, offer.buying.issuer),
+            amount: '0',
+            price : offer.price.toString(),
+            offerId : offer.id
+          });
+          const transaction = new StellarSdk.TransactionBuilder(account).addOperation(op).build();
+          let keypair = StellarSdk.Keypair.fromSecret(fromSecret);
+          transaction.sign(keypair);
+          return transaction;
+        }).then(transaction => {
+          return this.server.submitTransaction(transaction);
+        }).then(txResult => {
+          resolve(txResult.hash);
+        }).catch((err) => {
+          reject(this.getErrMsg(err));
+        });
+      } catch (err) {
+        reject(this.getErrMsg(err));
+      }
+    });
+  }
+
+  async queryOfferHistorys (address, optional = {}) {
+    return new Promise(async (resolve, reject)=>{
+      try {
+        let action = await this.server.transactions().forAccount(address).order(optional.order || 'desc');
+        if (optional.limit) {
+          action = action.limit(optional.limit);
+        } else {
+          action = action.limit(20);
+        }
+        /* let action =  this.server.offers('accounts', address);*/
+        let page = await action.call();
+        let result = [];
+        for (const record of page.records) {
+          let tx = new StellarSdk.Transaction(record.envelope_xdr);
+          result.push(tx.operations[0]);
+        }
+        resolve(result);
+
+        /*let action =  this.server.trades().forAccount(address).order(optional.order || 'desc');
+        if (optional.limit) {
+          action = action.limit(optional.limit);
+        }
+        if (optional.cursor) {
+          action = action.cursor(optional.cursor);
+        }
+        let page = await action.call();
+        resolve(page.records);*/
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   * stellar api请求错误统一处理方法
+   * @param err
+   * @returns {*|string}
+   */
+  getErrMsg (err) {
+    let message = "";
+    if (err instanceof StellarSdk.NotFoundError) {
+      message = "NotFoundError";
+    } else if (err.response && err.response.extras && err.response.extras.reason) {
+      message = err.response.extras.reason;
+    } else if (err.response && err.response.data && err.response.data.extras && err.response.data.extras.result_xdr) {
+      const resultXdr = StellarSdk.xdr.TransactionResult.fromXDR(err.response.data.extras.result_xdr, 'base64');
+      if (resultXdr.result().results()) {
+        message = resultXdr.result().results()[0].value().value().switch().name;
+      } else {
+        message = resultXdr.result().switch().name;
+      }
+    }else {
+      message = err.detail || err.message;
+    }
+
+    if (!message) console.error("Fail in getErrMsg", err);
+    return message;
+  }
+
+}
+
+export default StellarWallet;

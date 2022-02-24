@@ -74,6 +74,8 @@
 <script>
 import moment from "moment";
 import history from "./mixns/history";
+import { fmtCode } from "src/wallet/util";
+
 export default {
   mixins: [history],
   methods: {
@@ -124,7 +126,7 @@ export default {
         let balanceChanges =
           data.outcome.balanceChanges[this.$store.state.account.address];
         for (let i = 0, len = balanceChanges.length; i < len; i++) {
-          if (balanceChanges[i].currency === deliveredAmount.currency) {
+          if (fmtCode(balanceChanges[i].currency) === deliveredAmount.currency) {
             assetIssuer = balanceChanges[i].counterparty;
             break;
           }

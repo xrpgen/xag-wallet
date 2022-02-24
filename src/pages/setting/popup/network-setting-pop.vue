@@ -68,7 +68,7 @@
           </van-cell-group>
         </van-radio-group>
       </div>
-      <div class="padding">Ethereum</div>
+      <!-- <div class="padding">Ethereum</div>
       <div class="item-block">
         <van-radio-group v-model="ethereum">
           <van-cell-group :border="false">
@@ -92,7 +92,7 @@
             </van-cell>
           </van-cell-group>
         </van-radio-group>
-      </div>
+      </div> -->
       <!--
         <div class="padding">Bitcoin</div>
         <div class="item-block">

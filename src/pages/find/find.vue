@@ -45,13 +45,13 @@ export default {
     },
     all() {
       return [
-        {
-          title: "Etherscan",
-          subTitle: this.$t("find.ethBlockBrowser"),
-          desc: this.$t("find.ethDeveloped"),
-          link: "https://cn.etherscan.com",
-          imgUrl: "static/img/app/Etherscan.png"
-        },
+        // {
+        //   title: "Etherscan",
+        //   subTitle: this.$t("find.ethBlockBrowser"),
+        //   desc: this.$t("find.ethDeveloped"),
+        //   link: "https://cn.etherscan.com",
+        //   imgUrl: "static/img/app/Etherscan.png"
+        // },
         {
           title: this.$t("find.xrpTitle"),
           subTitle: this.$t("find.xrpSubTitle"),
@@ -98,13 +98,13 @@ export default {
     },
     application() {
       return [
-        {
-          title: "Etherscan",
-          subTitle: this.$t("find.ethBlockBrowser"),
-          desc: this.$t("find.ethDeveloped"),
-          link: "https://cn.etherscan.com/",
-          imgUrl: "static/img/app/Etherscan.png"
-        },
+        // {
+        //   title: "Etherscan",
+        //   subTitle: this.$t("find.ethBlockBrowser"),
+        //   desc: this.$t("find.ethDeveloped"),
+        //   link: "https://cn.etherscan.com/",
+        //   imgUrl: "static/img/app/Etherscan.png"
+        // },
         {
           title: this.$t("find.xrpTitle"),
           subTitle: this.$t("find.xrpSubTitle"),

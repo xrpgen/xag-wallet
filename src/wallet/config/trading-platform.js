@@ -21,9 +21,14 @@ export default {
     'rHcFoo6a9qT5NHiVn1THQRhsEGcxtYCV4d': {name: 'Gatehub'},
     'rLW9gnQo7BQhU6igk5keqYnH3TVrCxGRzm': {name: 'Bitfinex'},
     'rHzyKrq1AnCFTEv1yvmpcEhh5KJjttsEN8': {name: 'Fcoin'},
-    'rDt7d2bf2CSKzTFug2etkhbr8yQjbZtLE7': {name: 'Coinex'}
+    'rDt7d2bf2CSKzTFug2etkhbr8yQjbZtLE7': {name: 'Coinex'},
+    'rpFQmjCQzeGFXmxTtFAczofEyF21oBifHb': {name: 'Name1'},
+    'rsbKKCAQZPa3Xxqz4GuPBSsZh59ZEZ6VMf': {name: 'Name2'},
   },
   [AccountType.ripplexag]: {
-    'rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh': {name: 'Binance'}
+    'rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh': {name: 'Binance'},
+    'rpFQmjCQzeGFXmxTtFAczofEyF21oBifHb': {name: 'Name1'},
+    'rsbKKCAQZPa3Xxqz4GuPBSsZh59ZEZ6VMf': {name: 'Name2'},
+    'rUzWJkXyEtT8ekSSxkBYPqCvHpngcy6Fks': {name: 'Name3'},
   }
 };
