@@ -21,7 +21,7 @@
           </top-block>
         </content-block>-->
 
-        <div class="text-center tag-pt" v-if="isShowTag">
+        <!-- <div class="text-center tag-pt" v-if="isShowTag">
           <span
             style="border-radius: 3px 0 0 3px;"
             class="top-btn"
@@ -34,7 +34,7 @@
             class="top-btn"
             style="border-radius: 0 3px 3px 0;"
           >{{$t('wallet.enMnemonic')}}</span>
-        </div>
+        </div> -->
         <div class="small-font item text-tip-color" v-text="$t('wallet.backMnemonicCodeSubTip')"></div>
         <div class="small-font item tip-color text-muted" v-text="$t('wallet.MnemonicCodeIntro')"></div>
 
@@ -103,21 +103,20 @@ export default {
       source: "",
       accountTypes: [],
       memorizingCodeLanguage: "english",
-      isShowTag: true // 是否显示中英文助记词切换，true-显示（创建的时候），false-不显示（导出助记词）
+      isShowTag: false // 是否显示中英文助记词切换，true-显示（创建的时候），false-不显示（导出助记词）
     };
   },
   methods: {
     close() {
       this.showVpop = false;
     },
-    show(mnemonicCode, password, backupsSource, source, accountTypes) {
+    show(mnemonicCode, password, backupsSource, source, accountTypes, memorizingCodeLanguage) {
       if (mnemonicCode) {
         // 导出助记词跳转
         this.form.memorizingWords = mnemonicCode;
         this.memorizingCodes = mnemonicCode.split(" ");
-        this.isShowTag = false;
       } else {
-        // 创建跳转
+        this.memorizingCodeLanguage = memorizingCodeLanguage;
         this.setDefaultMnemonic();
       }
       this.form.password = password;
@@ -139,33 +138,24 @@ export default {
       });
     },
     setDefaultMnemonic() {
-      this.memorizingCodeLanguage = "english";
-      this.isShowTag = false;
-      if (this.$store.state.setting.language === "zh-CN") {
-        this.isShowTag = true;
-        this.tagSelect = "1";
-        this.memorizingCodeLanguage = "chinese_simplified";
-      } else {
-        this.tagSelect = "2";
-      }
-      this.form.memorizingWords = hdWallet.generateMnemonic({
+      this.form.memorizingWords = hdWallet.generateMnemonicV3({
         entropyBits: 128,
         language: this.memorizingCodeLanguage
       });
       this.memorizingCodes = this.form.memorizingWords.split(" ");
     },
-    onchangeTag(type) {
-      this.tagSelect = type;
-      this.memorizingCodeLanguage = "english";
-      if (type === "1") {
-        this.memorizingCodeLanguage = "chinese_simplified";
-      }
-      this.form.memorizingWords = hdWallet.generateMnemonic({
-        entropyBits: 128,
-        language: this.memorizingCodeLanguage
-      });
-      this.memorizingCodes = this.form.memorizingWords.split(" ");
-    },
+    // onchangeTag(type) {
+    //   this.tagSelect = type;
+    //   this.memorizingCodeLanguage = "english";
+    //   if (type === "1") {
+    //     this.memorizingCodeLanguage = "chinese_simplified";
+    //   }
+    //   this.form.memorizingWords = hdWallet.generateMnemonicV3({
+    //     entropyBits: 128,
+    //     language: this.memorizingCodeLanguage
+    //   });
+    //   this.memorizingCodes = this.form.memorizingWords.split(" ");
+    // },
     closeDialog() {
       this.showDialog = false;
     },

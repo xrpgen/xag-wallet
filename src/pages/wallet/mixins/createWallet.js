@@ -23,7 +23,7 @@ export default {
       state = 'N'
     ) {
       let memorizingCodeLanguage = this.getMemorizingCodeLanguage(mnemonicCode);
-      let wallet = hdWallet.fromMnemonic(
+      let wallet = hdWallet.fromMnemonicV3(
         mnemonicCode,
         null,
         memorizingCodeLanguage
@@ -127,7 +127,7 @@ export default {
         if (privateKey) {
           return hdWallet.getAccountFromSecret(coin[accountType], privateKey);
         } else if (mnemonicCode) {
-          let wallet = hdWallet.fromMnemonic(
+          let wallet = hdWallet.fromMnemonicV3(
             mnemonicCode,
             null,
             this.getMemorizingCodeLanguage(mnemonicCode)
