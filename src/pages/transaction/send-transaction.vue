@@ -21,7 +21,7 @@
           </i>
         </span>
         <span slot="right">
-          <i class="sao">
+          <i class="sao" @click="toScan">
             <img style="width:1.11rem" src="../../../static/img/sao-black.png" alt />
           </i>
         </span>
