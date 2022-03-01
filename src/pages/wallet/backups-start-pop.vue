@@ -51,22 +51,19 @@
         </button-bottom>
       </pl-content-block>
     </van-popup>
-    <backups-memoring-words ref="backupsMW"></backups-memoring-words>
-    <password-dialog ref="pwdDialog" @done="toBackups"></password-dialog>
+    <select-memorizing-language ref="selectML"></select-memorizing-language>
   </div>
 </template>
 <script>
-import backupsMemoringWords from "./backups-memorizing-words-pop";
+import SelectMemorizingLanguage from './select-memorizing-language';
 import topBlock from "./components/top-block";
 import contentBlock from "./components/content-block";
 import buttonBottom from "./components/button-bottom";
-import passwordDialog from "../ui/password-dialog";
 export default {
   components: {
-    backupsMemoringWords,
+    SelectMemorizingLanguage,
     topBlock,
     contentBlock,
-    passwordDialog,
     buttonBottom
   },
   data() {
@@ -96,13 +93,7 @@ export default {
     },
     toBackups(password) {
       // cryptor.decryptAES(this.$store.state.account.mnemonicCode, password)
-      this.$refs.backupsMW.show(
-        null,
-        password,
-        "create",
-        this.source,
-        this.accountTypes
-      );
+      this.$refs.selectML.show(null, password, 'create', this.source, this.accountTypes);
     }
   },
   created() {

@@ -114,7 +114,9 @@
     "creating": "Create...",
     "correctMnemonic": "Correct MnemonicCode.",
     "cnMnemonic": "Chinese",
-    "enMnemonic": "English"
+    "enMnemonic": "English",
+    "backMnemonicNext": "I have written down",
+    "selectMnemonicLang": "Select mnemonic language"
   },
   "assets": {
     "assets": "Assets",
