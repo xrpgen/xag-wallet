@@ -184,8 +184,9 @@ class RipplexagWallet {
     const memo = {
       data: data,
       format: 'text',
-      type: 'sign'
+      type: 'msg'
     };
+    const client = {data: 'XagToken', format: 'text', type: 'client'};
     let currency = realCode(option.assetCode) || CoinType.XRP;
     let payment = {
       source: {
@@ -202,7 +203,7 @@ class RipplexagWallet {
           currency: currency
         }
       },
-      memos: [memo]
+      memos: [memo, client]
     };
     
     if (option.assetIssuer) {

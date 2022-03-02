@@ -55,13 +55,17 @@
                 <span v-if="item.baseIsSeller" v-text="$t('trade.buying')"></span>
                 <span v-else v-text="$t('trade.selling')"></span>
               </td>
-              <td colspan="1" rowspan="1" class="small-font text-right">{{item.baseAmount}}</td>
+              <td colspan="1" rowspan="1" class="small-font text-right">
+                {{ item.baseAmount | currency("", "3") }}
+              </td>
               <td
                 colspan="1"
                 rowspan="1"
                 class="text-right small-font"
                 :class="item.baseIsSeller? 'text-success': 'text-danger'"
-              >{{item.price | currency('', '7') | cutTail}}</td>
+              >
+                {{ item.price | currency("", "6") }}
+              </td>
             </tr>
           </table>
         </div>
