@@ -14,13 +14,13 @@
         <div class="tip item-block" style="box-shadow: none;">
           <van-row>
             <van-col span="12" class="text-center">
-              <div class="large-font select-language" style="border-radius: 5px 0 0 5px;" :class="{'active': memorizingCodeLanguage === 'english'}" @click="changeLanguage('english')">
-                {{$t('wallet.enMnemonic')}}
+              <div class="large-font select-language" style="border-radius: 0 5px 5px 0;" :class="{'active': memorizingCodeLanguage === 'chinese_simplified'}" @click="changeLanguage('chinese_simplified')">
+                {{$t('wallet.cnMnemonic')}}
               </div>
             </van-col>
             <van-col span="12" class="text-center">
-              <div class="large-font select-language" style="border-radius: 0 5px 5px 0;" :class="{'active': memorizingCodeLanguage === 'chinese_simplified'}" @click="changeLanguage('chinese_simplified')">
-                {{$t('wallet.cnMnemonic')}}
+              <div class="large-font select-language" style="border-radius: 5px 0 0 5px;" :class="{'active': memorizingCodeLanguage === 'english'}" @click="changeLanguage('english')">
+                {{$t('wallet.enMnemonic')}}
               </div>
             </van-col>
           </van-row>
@@ -50,12 +50,12 @@
         backupsSource: '',
         source: '',
         accountTypes: [],
-        memorizingCodeLanguage: 'english'
+        memorizingCodeLanguage: 'chinese_simplified'
       };
     },
     methods: {
       show (mnemonicCode, password, backupsSource, source, accountTypes) {
-        this.memorizingCodeLanguage = 'english';
+        this.memorizingCodeLanguage = 'chinese_simplified';
         this.mnemonicCode = mnemonicCode;
         this.password = password;
         this.source = source;
@@ -99,11 +99,11 @@
     .select-language {
       height: 8rem;
       line-height: 8rem;
-      background: $primary-color;
-      color:#ffffff;
+      color: $primary-color;
+      background: #ffffff;
       &.active {
-        color: $primary-color;
-        background: #ffffff
+        color:#ffffff;
+        background: $primary-color;
       }
     }
     .tip {

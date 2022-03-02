@@ -150,6 +150,9 @@ class Account {
         break;
       }
     }
+    if (name.indexOf('Ripplexag') > -1) {
+      name = name.replace('Ripplexag', 'Xrpgen');
+    }
     return name;
   }
 
