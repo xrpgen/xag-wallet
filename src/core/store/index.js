@@ -21,18 +21,14 @@ const state = {
   passwordMap: {}, // 密码映射
   network: {
     [AccountType.ripple]: [
+      { value: "wss://xrplcluster.com", type: "public" },
+      { value: "wss://xrpl.ws", type: "public" },
       { value: "wss://s1.ripple.com", type: "public" },
-      { value: "wss://s-east.ripple.com", type: "public" },
-      { value: "wss://s-west.ripple.com", type: "public" },
-      { value: "wss://s.altnet.rippletest.net:51233", type: "test" }
     ],
     [AccountType.ripplexag]: [
       { value: "wss://g1.xrpgen.com", type: "public" },
       { value: "wss://g2.xrpgen.com", type: "public" },
       { value: "ws://g3.xrpgen.com:6006", type: "backup" },
-      { value: "wss://g5.xrpgen.com", type: "public" },
-      { value: "wss://g6.xrpgen.com", type: "public" },
-      { value: "wss://g7.xrpgen.com", type: "public" }
     ],
     [AccountType.ethereum]: [
       // {value: 'https://mainnet.infura.io/', type: 'public'},
@@ -60,15 +56,15 @@ const state = {
     language: "zh-CN",
     type: "",
     defaultAddress: "",
-    currencyUnit: "CNY",
+    currencyUnit: "USD",
     gesturePwd: "",
     tokenConfig: {},
     privacyMode: false,
     mytokenApi: "https://api.mytokenapi.com", // mytoken-api获取行情
     network: {
       [AccountType.stellar]: "https://horizon.stellar.org",
-      [AccountType.ripple]: "wss://s1.ripple.com",
-      [AccountType.ripplexag]: "wss://g2.xrpgen.com",
+      [AccountType.ripple]: "wss://xrplcluster.com",
+      [AccountType.ripplexag]: "wss://g1.xrpgen.com",
       [AccountType.ethereum]:
         "wss://mainnet.infura.io/ws/v3/ef03818b6af741aea80bcdee661fdfa3",
       [AccountType.bitcoin]: "https://blockchain.info"

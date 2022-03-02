@@ -50,15 +50,15 @@
                 >&nbsp;&nbsp;{{ data.name }}</span
               >
             </div>
-            <div class="content" :class="setStatAmtClass">
+            <!-- <div class="content" :class="setStatAmtClass">
               <span class="normal-font">&nbsp;&#8776;&nbsp;</span>
               <pl-privacy
                 >{{ statAmt | currency("", "4") | cutTail }}&nbsp;</pl-privacy
               >
-              <span class="small-font"
-                >&nbsp;{{ $store.state.setting.currencyUnit }}</span
-              >
-            </div>
+              <span class="small-font">
+                &nbsp;{{ $store.state.setting.currencyUnit }}
+              </span>
+            </div> -->
 
             <div class="bottom">
               <pl-wallet-addr
@@ -199,7 +199,7 @@
                           item.value | currency("", "8") | cutTail
                         }}</pl-privacy>
                       </div>
-                      <div class="content">
+                      <!-- <div class="content">
                         <span class="normal-font">&nbsp;&#8776;&nbsp;</span>
                         <pl-privacy
                           >{{
@@ -209,7 +209,7 @@
                         <span class="small-font"
                           >&nbsp;{{ $store.state.setting.currencyUnit }}</span
                         >
-                      </div>
+                      </div> -->
                       <div
                         class="text-main small-font"
                         v-if="isShowMarket(item.value, item.code, item.issuer)"

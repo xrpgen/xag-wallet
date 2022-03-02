@@ -35,7 +35,7 @@ class Setting {
       id = '1',
       language = 'zh-CN',
       defaultAddress = '',
-      currencyUnit = 'CNY',
+      currencyUnit = 'USD',
       network = {},
       gesturePwd = '',
       type = ''

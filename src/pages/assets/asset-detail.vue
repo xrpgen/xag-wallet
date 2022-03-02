@@ -79,7 +79,7 @@
               {{ balance | currency("", "8") | cutTail }}
             </p>
             <!-- v-if="isShowMarket(balance, asset.code, asset.issuer)" -->
-            <p
+            <!-- <p
               v-if="isShowMarket(balance, asset.code, asset.issuer)"
               :class="
                 asset.code === 'XAG'
@@ -91,7 +91,7 @@
               style="line-height: 20px;"
             >
               ≈&nbsp;{{ balance | market(asset.code, asset.issuer) }}
-            </p>
+            </p> -->
           </div>
           <tx-history
             :asset="asset"
