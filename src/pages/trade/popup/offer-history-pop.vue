@@ -29,10 +29,10 @@
             </tr>
             <tr v-for="(item,index) in historyOffers" :key="index">
               <td colspan="1" rowspan="1" class="small-font">
-                {{item.baseAmount}}
+                {{ item.baseAmount | currency("", "3") }}
               </td>
               <td colspan="1" rowspan="1" class="text-right small-font" :class="item.baseIsSeller? 'text-success': 'text-danger'">
-                {{item.price | currency('', '4')}}
+                {{ item.price | currency("", "6") }}
               </td>
               <td colspan="1" rowspan="1" class="text-right small-font" :class="item.baseIsSeller? 'text-success': 'text-danger'">
                 <span v-if="item.baseIsSeller">买入</span>

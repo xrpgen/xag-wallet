@@ -22,10 +22,10 @@
               @click.stop="selectOnePrice(item)"
             >
               <div class="text-left" style="color:#00ac94">
-                {{ item.amount | currency("", "2") }}
+                {{ item.amount | currency("", "3") }}
               </div>
               <div class="text-right small-font" style="color:#00ac94">
-                {{ item.price | currency("", "4") }}
+                {{ item.price | currency("", "6") }}
               </div>
             </div>
           </div>
@@ -46,10 +46,10 @@
               @click.stop="selectOnePrice(item)"
             >
               <div class="text-left" style="color:#ed4f78">
-                {{ item.price | currency("", "7") }}
+                {{ item.price | currency("", "6") }}
               </div>
               <div class="text-right small-font" style="color:#ed4f78">
-                {{ item.amount | currency("", "4") }}
+                {{ item.amount | currency("", "3") }}
               </div>
             </div>
           </div>

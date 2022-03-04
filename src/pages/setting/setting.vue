@@ -23,12 +23,12 @@
       </van-cell>
     </van-cell-group>
     <van-cell-group class="margin-top item-block reset-van-cell">
-      <van-cell :value="setting.currencyUnit" @click="toCurrencySelect">
+      <!-- <van-cell :value="setting.currencyUnit" @click="toCurrencySelect">
         <span slot="title" class="cell-title">
           <img :src="dprImg(`price.png`)" class="img-icon" />&emsp;
           <span class="text" v-text="$t('setting.currencyUnit')"></span>
         </span>
-      </van-cell>
+      </van-cell> -->
       <van-cell :value="languages[setting.language]" @click="toSetLanguage">
         <span slot="title">
           <img :src="dprImg(`language.png`)" class="img-icon" />&emsp;

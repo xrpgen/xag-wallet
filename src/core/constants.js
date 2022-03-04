@@ -34,8 +34,8 @@ export const languages = {
  * @type {{"zh-CN": string, "en-US": string, "ja-JP": string, "ko-KO": string}}
  */
 export const languagesCurrencys = {
-  'zh-CN': 'CNY',
   'en-US': 'USD',
+  'zh-CN': 'CNY',
   'ja-JP': 'JPY',
   'ko-KO': 'KRW'
 };
