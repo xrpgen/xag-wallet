@@ -53,7 +53,8 @@
     "middle": "Middle",
     "strong": "Strong",
     "best": "Best",
-    "exchange": "Exchange"
+    "exchange": "Exchange",
+    "info": "Info"
   },
   "wallet": {
     "selectLanguage": "Select Language",
