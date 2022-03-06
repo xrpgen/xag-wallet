@@ -64,6 +64,15 @@ Vue.api = {
       //console.error(e);
       return null;
     }
+  },
+  async getDeposit(address, currency, network, lang) {
+    try {
+      let url = `https://xagfans.com/deposit?address=${address}&currency=${currency}&network=${network}&lang=${lang}`;
+      let ret = await axios.get(url);
+      return ret.data;
+    } catch (e) {
+      return null;
+    }
   }
 };
 

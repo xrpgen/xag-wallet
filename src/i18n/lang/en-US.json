@@ -54,7 +54,8 @@
     "strong": "Strong",
     "best": "Best",
     "exchange": "Exchange",
-    "info": "Info"
+    "info": "Info",
+    "crossChain": "Cross Chain"
   },
   "wallet": {
     "selectLanguage": "Select Language",
