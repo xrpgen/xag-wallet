@@ -53,7 +53,9 @@
     "middle": "Middle",
     "strong": "Strong",
     "best": "Best",
-    "exchange": "Exchange"
+    "exchange": "Exchange",
+    "info": "Info",
+    "crossChain": "Cross Chain"
   },
   "wallet": {
     "selectLanguage": "Select Language",

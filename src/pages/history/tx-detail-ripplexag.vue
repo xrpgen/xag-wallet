@@ -87,10 +87,12 @@
       >
         <van-row>
           <van-col span="6">
-            <p class="small-font">信息</p>
+            <p class="small-font" v-text="$t('common.info')"></p>
           </van-col>
           <van-col span="18">
-            <div class="x-small-font">{{item.data.specification.memos[0].data}}</div>
+            <div class="x-small-font" :key="index" v-for="(memo, index) in item.data.specification.memos">
+              {{ memo.data }}
+            </div>
           </van-col>
         </van-row>
       </div>

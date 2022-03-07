@@ -28,61 +28,103 @@
       <div class="header text-center">
         <p class="big-font">{{$store.state.account.name}}</p>
       </div>
-      <div class="qrcode-container text-center">
-        <div class="small-font" style="padding: 15px 0 10px;">
-          {{$t('scan.scanQrCode')}}
-          <b class="normal-font text-primary">&nbsp;{{assetCode}}</b>
-        </div>
-        <!-- 合并的设置收款金额 -->
-        <div class="b-white padding set-amount border-radius">
-          <van-field
-            type="number"
-            ref="amountInput"
-            :class="showConfirm ==1 ? `large-font text-primary confirm-border`: `large-font text-primary` "
-            v-model="amount"
-            :placeholder="$t('scan.transferAmtPlaceholder')"
-            @focus="toConfirm"
-            @blur="toCoin"
-          >
-            <!-- coinType -->
-            <span
-              v-if="showConfirm !==1"
-              slot="icon"
-              style="color:#353535"
-              class="text-main normal-font"
-            >{{shortCode}}</span>
-            <span
-              v-if="showConfirm==1"
-              slot="icon"
-              class="text-main normal-font confirmColor"
-              @click="sure"
-            >{{$t('common.confirm')}}</span>
-          </van-field>
-        </div>
-        <!-- <div v-if="transferAmt" style="margin-bottom: 5px;">{{transferAmt}}&nbsp;&nbsp;{{shortCode}}</div> -->
-        <qrcode class="qrcode" :value="qrCodeText" :options="{ size: 127 }"></qrcode>
-        <span class="address-text">{{address | longStrAbbr(11)}}&nbsp;</span>
-      </div>
-      <div class="footer van-hairline--top">
-        <van-row>
-          <!-- 设置金额 -->
-          <!-- <van-col
+      <van-tabs sticky swipeable style="z-index: 1" :line-width="35">
+        <van-tab :title="$t('common.receivables')">
+          <div class="qrcode-container text-center">
+            <div class="small-font" style="padding: 15px 0 10px;">
+              {{$t('scan.scanQrCode')}}
+              <b class="normal-font text-primary">&nbsp;{{assetCode}}</b>
+            </div>
+            <!-- 合并的设置收款金额 -->
+            <div class="b-white padding set-amount border-radius">
+              <van-field
+                type="number"
+                ref="amountInput"
+                :class="showConfirm ==1 ? `large-font text-primary confirm-border`: `large-font text-primary` "
+                v-model="amount"
+                :placeholder="$t('scan.transferAmtPlaceholder')"
+                @focus="toConfirm"
+                @blur="toCoin"
+              >
+                <!-- coinType -->
+                <span
+                  v-if="showConfirm !==1"
+                  slot="icon"
+                  style="color:#353535"
+                  class="text-main normal-font"
+                >{{shortCode}}</span>
+                <span
+                  v-if="showConfirm==1"
+                  slot="icon"
+                  class="text-main normal-font confirmColor"
+                  @click="sure"
+                >{{$t('common.confirm')}}</span>
+              </van-field>
+            </div>
+            <!-- <div v-if="transferAmt" style="margin-bottom: 5px;">{{transferAmt}}&nbsp;&nbsp;{{shortCode}}</div> -->
+            <qrcode class="qrcode" :value="qrCodeText" :options="{ size: 127 }"></qrcode>
+            <span class="address-text">{{address | longStrAbbr(11)}}&nbsp;</span>
+          </div>
+          <div class="footer van-hairline--top">
+            <van-row>
+              <!-- 设置金额 -->
+              <!-- <van-col
             :span="24"
             class="text-center padding text-primary"
             @click.native="toSetAmt"
-          >{{$t('common.setAmt')}}</van-col>-->
-          <!-- 复制钱包按钮 -->
-          <div class="btn">
-            <van-button
-              @click="toCopyAddress"
-              size="large"
-              round
-              type="primary"
-              :text="$t('scan.copyWalletAddress')"
-            ></van-button>
+              >{{$t('common.setAmt')}}</van-col>-->
+              <!-- 复制钱包按钮 -->
+              <div class="btn">
+                <van-button
+                  @click="toCopyAddress"
+                  size="large"
+                  round
+                  type="primary"
+                  :text="$t('scan.copyWalletAddress')"
+                ></van-button>
+              </div>
+            </van-row>
           </div>
-        </van-row>
-      </div>
+        </van-tab>
+        <van-tab :title="$t('common.crossChain')" v-if="crossChain.isXag">
+          <van-loading style="margin: 10px auto;" v-if="crossChain.getDepositLoading" />
+          <div v-else>
+            <div v-if="crossChain.isError" class="text-center">
+              <div class="small-font" style="padding: 40px 0 40px 0;">{{crossChain.errorMsg}}</div>
+            </div>
+            <div v-else>
+              <div class="qrcode-container text-center">
+                <div class="small-font" style="padding: 15px 0 10px;">
+                  {{$t('scan.scanQrCode')}}
+                  <b class="normal-font text-primary">&nbsp;{{assetCode || shortCode}}</b>
+                </div>
+                <qrcode class="qrcode" :value="qrCrossChainCodeText" :options="{ size: 127 }"></qrcode>
+                <span class="address-text">{{crossChain.address | longStrAbbr(11)}}&nbsp;</span>
+                <div>
+                  <div class="cross-chain-network">network: {{crossChain.network}}</div>
+                  <div class="cross-chain-memo" v-if="crossChain.memo">memo: {{crossChain.memo}}</div>
+                  <div class="extra-info" :key="index" v-for="(item, index) in crossChain.extra_info">
+                    {{ item }}
+                  </div>
+                </div>
+              </div>
+              <div class="footer van-hairline--top">
+                <van-row>
+                  <div class="btn">
+                    <van-button
+                      @click="toCopyCrossChainAddress"
+                      size="large"
+                      round
+                      type="primary"
+                      :text="$t('scan.copyWalletAddress')"
+                    ></van-button>
+                  </div>
+                </van-row>
+              </div>
+            </div>
+          </div>
+        </van-tab>
+      </van-tabs>
     </div>
     <div
       class="share text-center text-primary"
@@ -129,7 +171,17 @@ export default {
       showShareActions: false,
       showConfirm: "",
       amount: "",
-      confirmAmount: ""
+      confirmAmount: "",
+      crossChain: {
+        isXag: false,
+        getDepositLoading: true,
+        isError: false,
+        errorMsg: "",
+        address: "",
+        network: "",
+        extra_info: [],
+        memo: "",
+      }
     };
   },
   components: {
@@ -163,6 +215,9 @@ export default {
         return this.address;
       }
     },
+    qrCrossChainCodeText() {
+      return this.crossChain.address;
+    },
     barTitle() {
       return this.shortCode + " " + this.$t("common.receivables");
     }
@@ -189,6 +244,49 @@ export default {
       this.showConfirm = 2;
     },
     showPopup(assetCode) {
+      this.crossChain = {
+        isXag: false,
+        getDepositLoading: true,
+        isError: false,
+        errorMsg: "",
+        address: "",
+        network: "",
+        extra_info: [],
+        memo: "",
+      };
+      let network = "";
+      if (this.$store.state.account.type == "ripplexag") {
+        this.crossChain.isXag = true;
+        network = "xrpgen";
+      } else {
+        this.crossChain.isXag = false;
+      }
+      let address = this.$store.state.account.address;
+      let currency = this.shortCode;
+      // let currency;
+      let lang;
+      if (this.$store.state.setting.language == "zh-CN") {
+        lang = "cn";
+      } else {
+        lang = "en";
+      }
+      this.$api
+        .getDeposit(address, currency, network, lang)
+        .then(res => {
+          console.log(res);
+          if (res.result == "error") {
+            this.crossChain.isError = true;
+            this.crossChain.errorMsg = res.error_message || res.error;
+          } else {
+            this.crossChain.address = res.address;
+            this.crossChain.network = res.network;
+            this.crossChain.extra_info = res.extra_info;
+            this.crossChain.memo = res.memo || "";
+          }
+        })
+        .finally(() => {
+          this.crossChain.getDepositLoading = false;
+        });
       this.transferAmt = "";
       this.assetCode = assetCode;
       this.show = true;
@@ -205,6 +303,16 @@ export default {
     },
     toCopyAddress() {
       this.$copyText(this.address).then(
+        () => {
+          this.$toast(this.$t("common.copySuccess"));
+        },
+        () => {
+          this.$toast(this.$t("common.copyFail"));
+        }
+      );
+    },
+    toCopyCrossChainAddress() {
+      this.$copyText(this.crossChain.address).then(
         () => {
           this.$toast(this.$t("common.copySuccess"));
         },
@@ -376,5 +484,19 @@ canvas {
   .van-cell.van-field {
     padding-bottom: 10px;
   }
+}
+.cross-chain-network {
+  text-align: left;
+  margin: 0.4rem 0 0.4rem 1rem;
+}
+.cross-chain-memo {
+  text-align: left;
+  margin-left: 1rem;
+  margin-top: 0.4rem;
+}
+.extra-info {
+  margin-left: 1rem;
+  font-size: 0.6rem;
+  text-align: left;
 }
 </style>

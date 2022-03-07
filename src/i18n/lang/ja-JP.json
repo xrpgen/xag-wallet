@@ -54,7 +54,9 @@
     "middle": "中",
     "strong": "強い",
     "best": "ベスト",
-    "exchange": "両替"
+    "exchange": "両替",
+    "info": "情報",
+    "crossChain": "クロスチェーン"
   },
   "wallet": {
     "selectLanguage": "言語を選択",

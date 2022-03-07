@@ -277,6 +277,13 @@ export default {
 </style>
 <style lang="scss" rel="stylesheet/scss">
 @import "~assets/scss/variables";
+.van-tab--active {
+  background: #fff;
+  color: #4abbe7;
+}
+.van-tabs__line {
+  background-color: $primary-color;
+}
 .assets-container {
   .van-swipe-item {
     position: relative;
