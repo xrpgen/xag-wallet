@@ -101,8 +101,8 @@
                 <qrcode class="qrcode" :value="qrCrossChainCodeText" :options="{ size: 127 }"></qrcode>
                 <span class="address-text">{{crossChain.address | longStrAbbr(11)}}&nbsp;</span>
                 <div>
-                  <div class="cross-chain-network">network: {{crossChain.network}}</div>
-                  <div class="cross-chain-memo" v-if="crossChain.memo">memo: {{crossChain.memo}}</div>
+                  <div class="cross-chain-network">{{crossChain.network}}</div>
+                  <div class="cross-chain-memo" v-if="crossChain.memo">{{crossChain.memo}}</div>
                   <div class="extra-info" :key="index" v-for="(item, index) in crossChain.extra_info">
                     {{ item }}
                   </div>
@@ -255,7 +255,7 @@ export default {
         memo: "",
       };
       let network = "";
-      if (this.$store.state.account.type == "ripplexag") {
+      if (this.$store.state.account.type == "ripplexag" && this.shortCode != "XAG") {
         this.crossChain.isXag = true;
         network = "xrpgen";
       } else {
@@ -487,12 +487,12 @@ canvas {
 }
 .cross-chain-network {
   text-align: left;
-  margin: 0.4rem 0 0.4rem 1rem;
+  margin: 0.2rem 0 0.2rem 1rem;
 }
 .cross-chain-memo {
   text-align: left;
   margin-left: 1rem;
-  margin-top: 0.4rem;
+  margin-bottom: 0.2rem;
 }
 .extra-info {
   margin-left: 1rem;
