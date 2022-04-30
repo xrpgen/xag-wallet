@@ -43,7 +43,7 @@ export default {
     return {
       showVpop: false,
       versionCode: "",
-      updateUrl: config.updateUrl,
+      updateUrl: config.newUpdateUrl,
       curVersionCode: "1.0.1"
     };
   },
@@ -66,7 +66,7 @@ export default {
   },
   created() {
     this.$api.checkUpdate(this.updateUrl).then(newVersionInfo => {
-      this.versionCode = newVersionInfo.tag_name.toString();
+      this.versionCode = newVersionInfo.version.toString();
     });
     if (!(window.cordova && window.cordova.getAppVersion)) {
       return;

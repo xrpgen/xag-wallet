@@ -3,7 +3,7 @@
   <van-popup v-model="show" style="width: 76%;" class="border-radius" :close-on-click-overlay="false">
     <div class="container">
       <img :src="dprImg(`logo1.png`)" alt="logo" class="update-logo">
-      <div class="title normal-font">{{$t('setting.version')}}&nbsp;V{{newVersion.tag_name}}</div>
+      <div class="title normal-font">{{$t('setting.version')}}&nbsp;V{{newVersion.version}}</div>
       <div class="desc van-hairline--bottom small-font" v-html="updateDesc">
       </div>
       <van-row>
@@ -68,7 +68,7 @@ export default {
         // this.$toast('检查更新失败，请联系客服！');
         return;
       }
-      updateUtil.checkUpdate(this, this.checkUpdateUrl).then( (newVersion) => {
+      updateUtil.checkUpdate(this, this.checkUpdateUrl).then((newVersion) => {
         this.newVersion = newVersion;
         let el = document.createElement( 'html' );
         let language = this.$store.state.setting.language;

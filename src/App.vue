@@ -19,7 +19,7 @@ export default {
   },
   data () {
     return {
-      updateUrl: config.updateUrl
+      updateUrl: config.newUpdateUrl
     };
   },
   created () {
