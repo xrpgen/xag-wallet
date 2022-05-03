@@ -236,6 +236,12 @@ let tokensCofing = {
           logo: 'static/img/XLM.png',
         },
         {
+          code: 'ETH',
+          issuer: 'rKiCet8SdvWxPXnAgYarFUXMh1zCPz432Y',
+          list: true,
+          logo: 'static/img/ETH.png',
+        },
+        {
           code: 'CNY',
           issuer: 'rKiCet8SdvWxPXnAgYarFUXMh1zCPz432Y',
           list: true,
@@ -286,6 +292,12 @@ let tokensCofing = {
           issuer: 'rUWABeB63z3pq2L6Ke4BTQAPS6hbBtFXLM',
           list: true,
           logo: 'static/img/XLM.png',
+        },
+        {
+          code: 'ETH',
+          issuer: 'rHJ6a42xxExCxyUJWQAKHdwarxVf6L9ETH',
+          list: true,
+          logo: 'static/img/ETH.png',
         },
       ],
       logo:

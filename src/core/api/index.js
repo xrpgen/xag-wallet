@@ -10,10 +10,10 @@ Vue.api = {
       }
       axios.get(updateUrl).then(ret => {
         ret = ret.data;
-        window.cordova.getAppVersion.getVersionNumber().then( (version) => {
+        window.cordova.getAppVersion.getVersionNumber().then((version) => {
           let curVersion = version.toString().replace(/\./g, '');
-          if (ret && ret.tag_name) {
-            let remoteVersion = ret.tag_name.toString().replace(/\./g, '');
+          if (ret && ret.version) {
+            let remoteVersion = ret.version.toString().replace(/\./g, '');
             if (window.parseInt(remoteVersion) > window.parseInt(curVersion)) {
               resolve(ret);
             } else {
