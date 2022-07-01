@@ -5,6 +5,7 @@ import tradingPlatformConfig from '../config/trading-platform';
 import rippleKeypairs from 'ripple-keypairs';
 import Big from 'big.js';
 import { fmtCode, realCode } from '../util';
+import Ripplebook from './Ripplebook.js';
 
 class RipplexagWallet {
   constructor(url, option = {}) {
@@ -22,6 +23,7 @@ class RipplexagWallet {
         maxFeeXRP: '0.05',
         timeout: 10 * 1000
       });
+      this.book = new Ripplebook(this.server);
     }
   }
 
@@ -327,91 +329,93 @@ class RipplexagWallet {
           }
           orderbook.counter.counterparty = counterSelling.issuer;
         }
-        await this.server
-          .getOrderbook(address, orderbook, { limit: 150 })
-          .then(data => {
-            let result = {
-              asks: [],
-              bids: []
-            };
-            data.asks.map(ret => {
-              let amount = ret.specification.quantity.value;
-              let price = Number(
-                new Big(ret.specification.totalPrice.value)
-                  .div(ret.specification.quantity.value)
+        //let data = await this.server.getOrderbook(address, orderbook, { limit: 50 });
+        let data = await this.book.getBook(orderbook);
+        let result = {
+          asks: [],
+          bids: []
+        };
+        data.asks.map(ret => {
+          // let amount = ret.specification.quantity.value;
+          // let price = Number(
+          //   new Big(ret.specification.totalPrice.value)
+          //     .div(ret.specification.quantity.value)
+          //     .toFixed(7)
+          //     .toString()
+          // ).toString();
+          // if (ret.state) {
+          //   amount = ret.state.fundedAmount.value;
+          // }
+          // if (Number(amount) === Number(0)) {
+          //   return;
+          // }
+          // let r = {
+          //   amount: amount,
+          //   price: price
+          // };
+          let r = {
+            amount: ret.amount,
+            price : ret.price.toFixed(7).toString()
+          };
+          let pop = result.asks.pop();
+          if (!pop) {
+            result.asks.push(r);
+          } else {
+            if (pop.price === r.price) {
+              pop.amount = Number(
+                new Big(pop.amount)
+                  .add(r.amount)
                   .toFixed(7)
                   .toString()
               ).toString();
-              if (ret.state) {
-                amount = ret.state.fundedAmount.value;
-              }
-              if (Number(amount) === Number(0)) {
-                return;
-              }
-              let r = {
-                amount: amount,
-                price: price
-              };
-              let pop = result.asks.pop();
-              if (!pop) {
-                result.asks.push(r);
-              } else {
-                if (pop.price === r.price) {
-                  pop.amount = Number(
-                    new Big(pop.amount)
-                      .add(r.amount)
-                      .toFixed(7)
-                      .toString()
-                  ).toString();
-                  result.asks.push(pop);
-                } else {
-                  result.asks.push(pop);
-                  result.asks.push(r);
-                }
-              }
-            });
-            data.bids.map(ret => {
-              let amount = ret.specification.quantity.value;
-              let price = Number(
-                new Big(ret.specification.totalPrice.value)
-                  .div(ret.specification.quantity.value)
+              result.asks.push(pop);
+            } else {
+              result.asks.push(pop);
+              result.asks.push(r);
+            }
+          }
+        });
+        data.bids.map(ret => {
+          // let amount = ret.specification.quantity.value;
+          // let price = Number(
+          //   new Big(ret.specification.totalPrice.value)
+          //     .div(ret.specification.quantity.value)
+          //     .toFixed(7)
+          //     .toString()
+          // ).toString();
+          // if (ret.state) {
+          //   amount = ret.state.priceOfFundedAmount.value;
+          // }
+          // if (Number(amount) === Number(0)) {
+          //   return;
+          // }
+          // let r = {
+          //   amount: amount,
+          //   price: price
+          // };
+          let r = {
+            amount: ret.amount,
+            price : ret.price.toFixed(7).toString()
+          };
+          let pop = result.bids.pop();
+          if (!pop) {
+            result.bids.push(r);
+          } else {
+            if (pop.price === r.price) {
+              pop.amount = Number(
+                new Big(pop.amount)
+                  .add(r.amount)
                   .toFixed(7)
                   .toString()
               ).toString();
-              if (ret.state) {
-                amount = ret.state.priceOfFundedAmount.value;
-              }
-              if (Number(amount) === Number(0)) {
-                return;
-              }
-              let r = {
-                amount: amount,
-                price: price
-              };
-              let pop = result.bids.pop();
-              if (!pop) {
-                result.bids.push(r);
-              } else {
-                if (pop.price === r.price) {
-                  pop.amount = Number(
-                    new Big(pop.amount)
-                      .add(r.amount)
-                      .toFixed(7)
-                      .toString()
-                  ).toString();
-                  result.bids.push(pop);
-                } else {
-                  result.bids.push(pop);
-                  result.bids.push(r);
-                }
-              }
-            });
-            resolve(result);
-          })
-          .catch(err => {
-            //console.error(err);
-            reject(err);
-          });
+              result.bids.push(pop);
+            } else {
+              result.bids.push(pop);
+              result.bids.push(r);
+            }
+          }
+        });
+        resolve(result);
       } catch (err) {
         reject(err);
       }
@@ -496,9 +500,13 @@ class RipplexagWallet {
         };
         if (selling.issuer) {
           order.totalPrice.counterparty = selling.issuer;
+        } else {
+          order.totalPrice.value = Number(order.totalPrice.value).toFixed(6).toString();
         }
         if (buying.issuer) {
           order.quantity.counterparty = buying.issuer;
+        } else {
+          order.quantity.value = Number(order.quantity.value).toFixed(6).toString();
         }
         let prepared = await this.server.prepareOrder(address, order);
         const { signedTransaction } = this.server.sign(
