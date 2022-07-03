@@ -57,14 +57,14 @@
       </van-row>
       <van-row>
         <van-col v-if="accountType !== 'ripplexag'" span="12" class="text-left">
-          <div
+          <!-- <div
             class="text-primary x-small-font"
             style="margin-top: 10px;"
             @click.stop="viewLastBooks"
           >
             {{ $t("trade.lastExec") }}
             <i class="ultfont ult-right x-small-font"></i>
-          </div>
+          </div> -->
         </van-col>
         <van-col
           span="12"
@@ -87,14 +87,14 @@
               </div>
             </div>
           </div>
-          <div
+          <!-- <div
             class="text-primary x-small-font"
             style="margin-top: 10px;display: inline-block;"
             @click.stop="viewMyBooks"
           >
             {{ $t("trade.myExec") }}
             <i class="ultfont ult-right x-small-font"></i>
-          </div>
+          </div> -->
         </van-col>
       </van-row>
     </div>
