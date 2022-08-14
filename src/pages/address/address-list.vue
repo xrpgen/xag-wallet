@@ -127,10 +127,10 @@ export default {
       }
     },
     dataFun(params) {
-      params.searchStr = this.searchStr;
-      if (this.accountType) {
-        params.searchStr = this.accountType;
-      }
+      // params.searchStr = this.searchStr;
+      // if (this.accountType) {
+      //   params.searchStr = this.accountType;
+      // }
       return this.$collecitons.address.findAddressByPages(params);
     },
     onRefresh() {
