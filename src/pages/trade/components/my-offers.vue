@@ -3,23 +3,35 @@
     <div class="b-white padding trade-offers">
       <div :class="{'van-hairline--bottom':index!==(offers.length - 1)}" v-for="(item, index) in offers" :key="index">
         <van-row class="margin-bottom">
-          <van-col span="3"><span v-if="item.isSelling" class="text-danger" v-text="$t('trade.selling')"></span><span v-else class="text-primary" v-text="$t('trade.buying')"></span></van-col>
-          <van-col span="15" class="text-muted">{{item.tradeTime}}&nbsp;</van-col>
-          <van-col span="6" class="text-right" @click.native="toCancel(item)"><span class="normal-font text-primary" v-text="$t('trade.cancel')"></span></van-col>
+          <!-- <van-col span="3"><span v-if="item.isSelling" class="text-danger" v-text="$t('trade.selling')"></span><span v-else class="text-primary" v-text="$t('trade.buying')"></span></van-col> -->
+          <!-- <van-col span="15" class="text-muted">{{item.tradeTime}}&nbsp;</van-col> -->
+          <!-- <van-col span="6" class="text-right" @click.native="toCancel(item)">
+            <span class="normal-font text-primary" v-text="$t('trade.cancel')">
+            </span>
+          </van-col> -->
         </van-row>
         <table style="height: 100%;width: 100%;border-collapse:collapse;">
           <tr>
+            <th colspan="1" rowspan="1" class="small-font text-muted text-left">
+              {{$t('trade.direction')}}
+            </th>
             <th colspan="1" rowspan="1" class="small-font text-muted text-left">
               {{$t('trade.price')}}({{tradePair.counterCode}})
             </th>
             <th colspan="1" rowspan="1" class="small-font text-muted text-right ">
               {{$t('trade.amount')}}({{tradePair.baseCode}})
             </th>
-            <th colspan="1" rowspan="1" class="small-font text-muted text-right ">
+            <!-- <th colspan="1" rowspan="1" class="small-font text-muted text-right ">
               {{$t('trade.unexecuted')}}({{tradePair.baseCode}})
+            </th> -->
+            <th colspan="1" rowspan="1" class="small-font text-muted text-right ">
             </th>
           </tr>
           <tr>
+            <td colspan="1" rowspan="1" class="text-left small-font" :style="{color:item.isSelling?'#ed4f78': '#00ac94'}">
+              <span v-if="item.isSelling" class="text-danger" v-text="$t('trade.selling')"></span>
+              <span v-else class="text-primary" v-text="$t('trade.buying')"></span>
+            </td>
             <td colspan="1" rowspan="1" class="small-font" :style="{color:item.isSelling?'#ed4f78': '#00ac94'}">
               {{ item.price | currency("", "6") }}
             </td>
@@ -27,7 +39,9 @@
               {{ item.amount | currency("", "3") }}
             </td>
             <td colspan="1" rowspan="1" class="text-right small-font" :style="{color:item.isSelling?'#ed4f78': '#00ac94'}">
-              0
+              <span @click="toCancel(item)">
+                {{ $t('trade.cancel') }}
+              </span>
             </td>
           </tr>
         </table>
