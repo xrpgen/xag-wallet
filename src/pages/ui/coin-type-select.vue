@@ -50,9 +50,11 @@ export default {
       Object.keys(coins).forEach(key => {
         let coin = coins[key];
         if (coin.isShow) {
+          let name = coin.name.charAt(0).toUpperCase() + coin.name.substring(1);
+          name = name == "Ripplexag" ? "Xrpgen" : name;
           this.coinTypes.push({
             acctType: key,
-            name: coin.name.charAt(0).toUpperCase() + coin.name.substring(1),
+            name: name,
             coinType: coin.symbol
           });
         }

@@ -299,6 +299,9 @@ export default {
     },
     setType(type, acctType) {
       this.form.acctType = acctType;
+      acctType = acctType == "ripplexag"
+      ? "xrpgen"
+      : acctType;
       this.form.type = this.stringUpperCaseFirstChar(acctType);
       this.resetLabelForm();
     },

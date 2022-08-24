@@ -13,7 +13,7 @@ export default {
     symbol: CoinType.ETH,
     derive_path: "m/44'/60'/0'/0/index",
     wallet: new Ethereum(),
-    isShow: true,
+    isShow: false,
     tokens () {
       return tokens.get(AccountType.ethereum);
     }
