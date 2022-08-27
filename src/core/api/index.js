@@ -83,6 +83,14 @@ Vue.api = {
       return null;
     }
   },
+  async getUrl(url) {
+    try {
+      let ret = await axios.get(url);
+      return ret.data;
+    } catch (e) {
+      return null;
+    }
+  },
 };
 
 const install = (Vue) => {
