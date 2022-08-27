@@ -73,7 +73,16 @@ Vue.api = {
     } catch (e) {
       return null;
     }
-  }
+  },
+  async getDapp() {
+    try {
+      let url = `https://xrpgen.com/dapp.json`;
+      let ret = await axios.get(url);
+      return ret.data;
+    } catch (e) {
+      return null;
+    }
+  },
 };
 
 const install = (Vue) => {
