@@ -57,6 +57,23 @@ class RippleWallet {
     });
   }
 
+  async checkSettings(address) {
+    if (!this.server.isConnected()) {
+      await this.server.connect();
+    }
+    return new Promise(async (resolve, reject)=>{
+      try {
+        let data = await this.server.getSettings(address);
+        resolve(data);
+      } catch(e){
+        if (e.data && e.data.error === 'actNotFound') {
+          e.unfunded = true;
+        }
+        reject(e);
+      }
+    });
+  }
+
   // subscribe (address) {
   //   this.server.connection.on('transaction', (response) => {
   //     console.info(response);

@@ -52,8 +52,17 @@ export default [
         component (resolve) {
           require.ensure([], () => resolve(require('./find/find.vue')), 'news-adv');
         },
-        meta: {canBack: false, transition: false}
-      }
+        meta: {canBack: false, transition: false,}
+      },
+      {
+        desc: 'dapp',
+        path: 'dapp-detail',
+        name: 'dapp-detail',
+        component (resolve) {
+          require.ensure([], () => resolve(require('./find/dapp-detail.vue')), 'dapp-detail');
+        },
+        meta: {canBack: true, transition: true, showTabBar: false}
+      },
     ]
   }
 ];

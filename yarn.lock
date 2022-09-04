@@ -8526,7 +8526,7 @@
     "bignumber.js" "^4.1.0"
     "lodash" "^4.17.4"
 
-"ripple-lib@^1.2.4":
+"ripple-lib@1.2.4":
   "integrity" "sha512-hmlj+AIisg4XuSS4ee4uhB9Glc/kM02ZNfl7KF336NDPu81vhqJuR8pikSGwJ/Ay7wIVrP9ny1zR/6FI6lZTZg=="
   "resolved" "https://registry.npmjs.org/ripple-lib/-/ripple-lib-1.2.4.tgz"
   "version" "1.2.4"
@@ -10147,6 +10147,13 @@
   "resolved" "https://registry.npmjs.org/vm-browserify/-/vm-browserify-1.1.2.tgz"
   "version" "1.1.2"
 
+"vue-append@^2.2.0":
+  "integrity" "sha512-bqVWyZe8AxP4Zupb0GUSE6dW7UtbilAtD2IE7e+fopbtWI9cZEmRANM/b91IdoewXz1J8Eql0GEodGLsOkVuhg=="
+  "resolved" "https://registry.npmjs.org/vue-append/-/vue-append-2.2.0.tgz"
+  "version" "2.2.0"
+  dependencies:
+    "vue" "^2.3.2"
+
 "vue-clipboard2@^0.2.1":
   "integrity" "sha512-n6ie/0g0bKohmLlC/5ja1esq2Q0jQ5hWmhNSZcvCsWfDeDnVARjl6cBB9p72XV1nlVfuqsZcfV8HTjjZAIlLBA=="
   "resolved" "https://registry.npmjs.org/vue-clipboard2/-/vue-clipboard2-0.2.1.tgz"
@@ -10230,7 +10237,7 @@
   "resolved" "https://registry.npmjs.org/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.9.1.tgz"
   "version" "1.9.1"
 
-"vue@^2.2.0", "vue@^2.5.17", "vue@>= 2.5.0":
+"vue@^2.2.0", "vue@^2.3.2", "vue@^2.5.17", "vue@>= 2.5.0":
   "integrity" "sha512-VfPwgcGABbGAue9+sfrD4PuwFar7gPb1yl1UK1MwXoQPAw0BKSqWfoYCT/ThFrdEVWoI51dBuyCoiNU9bZDZxQ=="
   "resolved" "https://registry.npmjs.org/vue/-/vue-2.6.11.tgz"
   "version" "2.6.11"

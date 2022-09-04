@@ -21,6 +21,7 @@ import coins from './wallet/coins';
 import api from './core/api';
 import getMarket from './core/utils/market';
 import './core/mixins/dpr-img';
+import VueAppend from 'vue-append';
 
 window.canBack = true;
 process.versions = {};
@@ -32,6 +33,7 @@ if (config && config.modules) {
   });
 }
 
+Vue.use(VueAppend);
 Vue.use(VueClipboard);
 Vue.use(Filters); // 使用自定义过滤器
 Vue.use(Vue2Filters); // 使用过滤器

@@ -8,43 +8,53 @@
         v-for="(item, index) in datas"
         :key="index"
       >
-        <!-- <div class="arrow-right">
-          <a href>
-            <span>11</span>
-          </a>
-        </div>-->
-        <div slot="title" class="card-title">
-          <div class="normal-font">{{item.title}}</div>
-          <div class="small-font text-ellipsis text-main">{{item.subTitle}}</div>
-        </div>
-
-        <div slot="thumb">
-          <img :src="item.imgUrl" width="60" height="60" />
-        </div>
-        <div slot="desc" class="text-muted">{{item.desc}}</div>
-        <!--<div slot="footer" style="position: relative;top: -35px;">
-          <van-icon name="arrow"></van-icon>
-        </div>-->
-        <div slot="footer">
-          <!-- <a :href="item.link"></a> -->
-          <span></span>
-        </div>
+        <template v-if="item.isDapp">
+          <div slot="title" class="card-title" style="margin: auto;">
+            <div class="normal-font">{{item.title}}</div>
+          </div>
+          <div slot="thumb">
+            <img :src="item.imgUrl" width="60" height="60" />
+          </div>
+          <div slot="footer">
+            <span></span>
+          </div>
+        </template>
+        <template v-else>
+          <div slot="title" class="card-title" style="margin: auto;">
+            <div class="normal-font">{{item.title}}</div>
+          </div>
+          <div slot="thumb">
+            <img :src="item.imgUrl" width="60" height="60" />
+          </div>
+          <div slot="footer">
+            <span></span>
+          </div>
+        </template>
       </van-card>
     </div>
   </pl-content-block>
 </template>
 <script>
 import customerBrowser from "core/utils/customerBrowser";
+import dappDetail from "./dapp-detail";
+
 export default {
   props: {
     datas: Array
+  },
+  components: {
+    dappDetail,
   },
   data() {
     return {};
   },
   methods: {
     to(item) {
-      customerBrowser.open(item.title, item.link);
+      if (item.isDapp == true) {
+        this.$router.push({name: 'dapp-detail', params: {item: item}});
+      } else {
+        customerBrowser.open(item.title, item.link);
+      }
     }
   }
 };

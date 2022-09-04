@@ -20,15 +20,26 @@
   </div>
 </template>
 <script>
-// import news from './news';
 import applicationItem from "./application-item";
 export default {
   name: "news-adv",
-  components: { applicationItem },
+  components: {
+    applicationItem,
+  },
   data() {
     return {
-      active: 0
+      active: 0,
+      dappList: [],
     };
+  },
+  mounted() {
+    this.getDappList(this.$store.state.setting.language);
+  },
+  watch: {
+    "$store.state.setting.language": function(val) {
+      this.dappList = [];
+      this.getDappList(val);
+    },
   },
   computed: {
     type() {
@@ -44,14 +55,7 @@ export default {
       return "";
     },
     all() {
-      return [
-        // {
-        //   title: "Etherscan",
-        //   subTitle: this.$t("find.ethBlockBrowser"),
-        //   desc: this.$t("find.ethDeveloped"),
-        //   link: "https://cn.etherscan.com",
-        //   imgUrl: "static/img/app/Etherscan.png"
-        // },
+      let arr = [
         {
           title: this.$t("find.xrpTitle"),
           subTitle: this.$t("find.xrpSubTitle"),
@@ -65,75 +69,52 @@ export default {
           desc: this.$t("find.xagDesc"),
           link: "https://scan.xrpgen.com/",
           imgUrl: "static/img/XAG@3x.png"
-        } /* 
-          {
-            title: this.$t('find.xmlTitle'),
-            subTitle: this.$t('find.xmlSubTitle'),
-            desc: this.$t('find.xmlDesc'),
-            link: 'https://steexp.com/',
-            imgUrl: 'static/img/XLM@3x.png'
-          },
-          {
-            title: this.$t('find.xrpMarketTitle'),
-            subTitle: this.$t('find.xrpMarketSubTitle'),
-            desc: this.$t('find.xrpMarketDesc'),
-            link: 'http://ripple.stellar.chat/#/',
-            imgUrl: 'static/img/XRP@3x.png'
-          }, 
-          {
-            title: this.$t('find.u919Title'),
-            subTitle: this.$t('find.u919SubTitle'),
-            desc: this.$t('find.u919Desc'),
-            link: 'http://xlmyun.com:666/#!/track',
-            imgUrl: 'static/img/app/u919.png'
-          },
-          {
-            title: 'Fomo3D',
-            subTitle: this.$t('find.fomo3DSubTitle'),
-            desc: this.$t('find.fomo3DDsc'),
-            link: 'http://exitscam.me',
-            imgUrl: 'static/img/app/Fomo3D.png'
-          }*/
+        },
       ];
+      return [...arr, ...this.dappList];
     },
     application() {
-      return [
-        // {
-        //   title: "Etherscan",
-        //   subTitle: this.$t("find.ethBlockBrowser"),
-        //   desc: this.$t("find.ethDeveloped"),
-        //   link: "https://cn.etherscan.com/",
-        //   imgUrl: "static/img/app/Etherscan.png"
-        // },
-        {
-          title: this.$t("find.xrpTitle"),
-          subTitle: this.$t("find.xrpSubTitle"),
-          desc: this.$t("find.xrpDesc"),
-          link: "https://xrpscan.com",
-          imgUrl: "static/img/XRP@3x.png"
-        }
-        /* {
-            title: this.$t('find.xrpMarketTitle'),
-            subTitle: this.$t('find.xrpMarketSubTitle'),
-            desc: this.$t('find.xrpMarketDesc'),
-            link: 'http://ripple.stellar.chat/#/',
-            imgUrl: 'static/img/XRP@3x.png'
-          }, */
-      ];
+      return this.dappList.filter(item => {
+        return item.type == "app";
+      });
     },
     game() {
-      return [
-        {
-          title: this.$t("find.xrpTitle"),
-          subTitle: this.$t("find.xrpSubTitle"),
-          desc: this.$t("find.xrpDesc"),
-          link: "https://xrpscan.com",
-          imgUrl: "static/img/XRP@3x.png"
-        }
-      ];
-    }
+      return this.dappList.filter(item => {
+        return item.type == "game";
+      });
+    },
   },
-  methods: {},
+  methods: {
+    getDappList(language) {
+      let lang;
+      if (language == "zh-CN") {
+        lang = "cn";
+      } else if (language == "ja-JP") {
+        lang = "jp";
+      } else {
+        lang = "en";
+      }
+      this.$api.getDapp().then(res => {
+        let dapp = [];
+        for (let index in res) {
+          let isDapp = typeof res[index].isDapp == "undefined" 
+            ? true
+            : res[index].isDapp;
+          let obj = {
+            title: res[index].name[lang],
+            subTitle: "",
+            desc: "",
+            link: res[index].url,
+            imgUrl: res[index].logo,
+            isDapp: isDapp,
+            type: res[index].type,
+          };
+          dapp.push(obj);
+        }
+        this.dappList = dapp;
+      });
+    },
+  },
   activated() {
     this.active = 0;
   }
