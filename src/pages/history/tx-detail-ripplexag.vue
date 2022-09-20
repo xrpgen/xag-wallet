@@ -90,7 +90,7 @@
             <p class="small-font" v-text="$t('common.info')"></p>
           </van-col>
           <van-col span="18">
-            <div class="x-small-font" :key="index" v-for="(memo, index) in item.data.specification.memos">
+            <div class="x-small-font" :key="index" v-for="(memo, index) in item.data.specification.memos" v-if="memo.type == 'msg' || memo.type == 'address'">
               {{ memo.data }}
             </div>
           </van-col>

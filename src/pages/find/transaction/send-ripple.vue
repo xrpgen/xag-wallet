@@ -171,10 +171,10 @@
   </div>
 </template>
 <script>
-import receiveAddress from "../ui/receive-address";
+import receiveAddress from "../../ui/receive-address";
 import Big from "big.js";
 import cryptor from "core/utils/cryptor";
-import { AccountType } from "../../wallet/constants";
+import { AccountType } from "../../../wallet/constants";
 
 export default {
   components: { receiveAddress },
@@ -186,7 +186,9 @@ export default {
       }
     },
     address: String,
-    transferAmt: String
+    transferAmt: String,
+    tag: String,
+    msg: String,
   },
   data() {
     return {
@@ -317,6 +319,12 @@ export default {
       }
       if (this.transferAmt && this.transferAmt !== "") {
         this.form.amt = this.transferAmt;
+      }
+      if (this.tag && this.tag !== "") {
+        this.form.tag = this.tag;
+      }
+      if (this.msg && this.msg !== "") {
+        this.form.memo = this.msg;
       }
     },
     firstStep() {

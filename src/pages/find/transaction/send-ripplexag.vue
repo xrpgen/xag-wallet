@@ -4,12 +4,12 @@
       <pl-content-block :offsetTop="46" :offsetBottom="45">
         <div class="item-block" style="margin-top:40px">
           <pl-block>
-            <div>
+            <div class="normal-font">
               <span class="small-font pull-right">
                 <span class="ava-balance" slot="title">
                   <span>{{$t('transaction.balance')}}&nbsp;</span>
                   <span
-                    class="text-ripple"
+                    class="text-primary"
                   >{{balance| currency('', '7') | cutTail}}&nbsp;{{asset.code}}</span>
                 </span>
               </span>
@@ -29,7 +29,7 @@
             <!--</van-cell>-->
           </pl-block>
         </div>
-
+        <!-- 地址 -->
         <receive-address
           class="item-block"
           v-model="form.receiveAddress"
@@ -44,7 +44,7 @@
           <small
             class="text-danger"
             v-show="!addressActivated"
-            v-text="$t('transaction.xrpUnActivationAddressMsg')"
+            v-text="$t('transaction.xagUnActivationAddressMsg')"
           ></small>
           <small
             class="text-danger"
@@ -69,6 +69,22 @@
             ></small>
           </pl-block>
         </div>
+        <!-- 新增的信息部分 -->
+        <div class="item-block">
+          <pl-block>
+            <van-field
+              rows="1"
+              autosize
+              type="textarea"
+              v-model="form.memo"
+              :placeholder="$t('transaction.inputMessage')"
+              clearable
+              :label="$t('common.message')"
+              maxlength="100"
+            ></van-field>
+            <!-- <small class="text-danger" v-text="$t('transaction.xrpExchangeAddress')"></small> -->
+          </pl-block>
+        </div>
       </pl-content-block>
       <pl-stick :offset-bottom="0">
         <van-button
@@ -82,42 +98,74 @@
         ></van-button>
       </pl-stick>
     </div>
-    <van-actionsheet v-model="showFirstStep" :close-on-click-overlay="false">
+    <!-- 下拉菜单 -->
+    <van-actionsheet
+      class="transfer-actionsheet"
+      v-model="showFirstStep"
+      :close-on-click-overlay="false"
+    >
       <div class="transfer-sub-warpper">
         <div v-show="!showSecondStep">
           <van-nav-bar
+            class="fw400"
             :title="$t('transaction.confirmTransferAcctMsg')"
-            @click-left="showFirstStep = false"
+            @click-right="showFirstStep = false"
           >
-            <span slot="left">
-              <van-icon name="close" />
+            <span slot="right">
+              <i>
+                <img style="width:14px" src="../../../../static/img/X.png" alt />
+              </i>
             </span>
           </van-nav-bar>
           <div>
-            <div class="text-center x-x-large-font" style="padding:20px 0px;">
-              {{form.amt | currency('', '7') | cutTail}}&nbsp;
-              <small>{{asset.code}}</small>
-            </div>
             <van-cell-group>
-              <van-cell>
-                <span slot="title" class="text-muted" v-text="$t('transaction.transferAcctType')"></span>
-                {{asset.code}}&nbsp;{{$t('common.transferAccounts')}}
-              </van-cell>
-              <van-cell>
-                <span slot="title" class="text-muted" v-text="$t('common.receivablesAddress')"></span>
-                <div>{{form.receiveAddress}}</div>
-              </van-cell>
-              <van-cell>
-                <span slot="title" class="text-muted" v-text="$t('common.paymentAddress')"></span>
-                <div>{{$store.state.account.address}}</div>
-              </van-cell>
-              <van-cell>
-                <span slot="title" class="text-muted">Tag</span>
-                <div>{{form.tag}}</div>
-              </van-cell>
+              <div class="normal-block" style="margin-top:0px">
+                <van-cell>
+                  <span slot="title" v-text="$t('common.transferAmount')"></span>
+                  <div class="fw500" style="font-size:0.89rem ;color:#333">
+                    {{form.amt | currency('', '7') | cutTail}}&nbsp;
+                    <small
+                      style="font-size:0.78rem"
+                    >{{asset.code}}</small>
+                  </div>
+                </van-cell>
+              </div>
+              <!-- 转账类型 -->
+              <div class="normal-block">
+                <van-cell>
+                  <span slot="title" v-text="$t('transaction.transferAcctType')"></span>
+                  {{asset.code}}&nbsp;{{$t('common.transferAccounts')}}
+                </van-cell>
+              </div>
+              <div class="normal-block">
+                <van-cell>
+                  <span slot="title" v-text="$t('common.receivablesAddress')"></span>
+                  <div>{{form.receiveAddress}}</div>
+                </van-cell>
+              </div>
+              <div class="normal-block">
+                <van-cell>
+                  <span slot="title" v-text="$t('common.paymentAddress')"></span>
+                  <div>{{$store.state.account.address}}</div>
+                </van-cell>
+              </div>
+              <div class="normal-block">
+                <van-cell>
+                  <span slot="title">Tag</span>
+                  <div>{{form.tag}}</div>
+                </van-cell>
+              </div>
+              <!-- 新增的备注信息 -->
+              <div class="normal-block">
+                <van-cell>
+                  <span slot="title">{{$t('common.message')}}</span>
+                  <div>{{form.memo}}</div>
+                </van-cell>
+              </div>
             </van-cell-group>
           </div>
           <pl-stick :offset-bottom="0">
+            <!-- 下一步按钮 -->
             <van-button
               size="large"
               :loading="loading"
@@ -130,29 +178,49 @@
         </div>
         <div v-show="showSecondStep">
           <van-nav-bar
+            class="fw400"
             :title="$t('common.inputPwd')"
-            left-arrow
             @click-left="showSecondStep = false"
-          />
+            @click-right="showFirstStep = false"
+          >
+            <span slot="left">
+              <i>
+                <img style="width:14px" src="../../../../static/img/back-small.png" alt />
+              </i>
+            </span>
+            <span slot="right">
+              <i>
+                <img style="width:14px" src="../../../../static/img/X.png" alt />
+              </i>
+            </span>
+          </van-nav-bar>
           <van-cell-group>
-            <van-field
-              v-model="form.password"
-              ref="password"
-              type="password"
-              @click-icon="displayPassword = true"
-              :placeholder="$t('transaction.walletPwdPlaceholder')"
-              icon="password-not-view"
-              v-show="!displayPassword"
-            />
-            <van-field
-              v-model="form.password"
-              ref="visualPassword"
-              type="text"
-              @click-icon="displayPassword = false"
-              :placeholder="$t('transaction.walletPwdPlaceholder')"
-              icon="password-view"
-              v-show="displayPassword"
-            />
+            <div class="normal-block">
+              <van-field
+                v-model="form.password"
+                ref="password"
+                type="password"
+                :placeholder="$t('common.inputPwd')"
+                v-show="!displayPassword"
+                :label="$t('common.password')"
+              ></van-field>
+              <span v-show="!displayPassword" @click="displayPassword = true" class="password-icon">
+                <img width="17" src="../../../../static/img/close-small.png" alt />
+              </span>
+            </div>
+            <div class="normal-block">
+              <van-field
+                v-model="form.password"
+                ref="visualPassword"
+                type="text"
+                :placeholder="$t('common.inputPwd')"
+                v-show="displayPassword"
+                :label="$t('common.password')"
+              ></van-field>
+              <span v-show="displayPassword" @click="displayPassword = false" class="password-icon">
+                <img width="17" src="../../../../static/img/open-small.png" alt />
+              </span>
+            </div>
           </van-cell-group>
           <pl-stick :offset-bottom="0">
             <van-button
@@ -171,10 +239,10 @@
   </div>
 </template>
 <script>
-import receiveAddress from "../ui/receive-address";
+import receiveAddress from "../../ui/receive-address";
 import Big from "big.js";
 import cryptor from "core/utils/cryptor";
-import { AccountType } from "../../wallet/constants";
+import { AccountType } from "../../../wallet/constants";
 
 export default {
   components: { receiveAddress },
@@ -186,7 +254,9 @@ export default {
       }
     },
     address: String,
-    transferAmt: String
+    transferAmt: String,
+    tag: String,
+    msg: String,
   },
   data() {
     return {
@@ -198,7 +268,8 @@ export default {
         receiveAddress: "",
         tag: "",
         remark: "",
-        password: ""
+        password: "",
+        memo: ""
       },
       requireDestinationTag: false,
       loading: false,
@@ -310,13 +381,20 @@ export default {
         receiveAddress: "",
         tag: "",
         remark: "",
-        password: ""
+        password: "",
+        memo: ""
       };
       if (this.address && this.address !== "") {
         this.form.receiveAddress = this.address;
       }
       if (this.transferAmt && this.transferAmt !== "") {
         this.form.amt = this.transferAmt;
+      }
+      if (this.tag && this.tag !== "") {
+        this.form.tag = this.tag;
+      }
+      if (this.msg && this.msg !== "") {
+        this.form.memo = this.msg;
       }
     },
     firstStep() {
@@ -326,13 +404,17 @@ export default {
         return;
       }
 
-      if (amt.gt(this.balance)) {
+      if (
+        amt.gt(this.balance) &&
+        this.$store.state.account !== this.asset.issuer &&
+        this.form.receiveAddress !== this.asset.issuer
+      ) {
         this.$toast(this.$t("transaction.balanceTooLowTip"));
         return;
       }
 
-      if (!this.addressActivated && amt.lt("20")) {
-        this.$toast(this.$t("transaction.xrpUnActivationAddressTip"));
+      if (!this.addressActivated && amt.lt("50")) {
+        this.$toast(this.$t("transaction.xagUnActivationAddressTip"));
         return;
       }
 
@@ -357,6 +439,7 @@ export default {
     },
     changeReceiveAddress(address) {
       this.form.tag = address.labelValue;
+      console.log(this.form.tag);
     },
     getErrMsg(err) {
       let retMsg = this.$t("common.transactionFail");
@@ -371,7 +454,7 @@ export default {
         this.$toast(this.$t("transaction.walletPwdError"));
         return;
       }
-
+      //  正在提交要以提示框
       const toast = this.$toast.loading({
         duration: 0,
         forbidClick: true,
@@ -382,12 +465,12 @@ export default {
       let options = {
         tag: this.form.tag
       };
+      console.log(this.asset, this.asset.code, this.asset.issuer);
 
       if (this.asset && this.asset.code && this.asset.issuer) {
         options.assetCode = this.asset.code;
         options.assetIssuer = this.asset.issuer;
       }
-
       this.$wallet
         .sendTransaction(
           cryptor.decryptAES(
@@ -396,7 +479,8 @@ export default {
           ),
           this.form.receiveAddress,
           this.form.amt,
-          options
+          options,
+          this.form.memo
         )
         .then(ret => {
           if (ret && ret.resultCode === "tesSUCCESS") {
@@ -451,6 +535,9 @@ export default {
     padding-top: 30px;
     padding-bottom: 14px;
   }
+  .content-block {
+    overflow: visible;
+  }
 }
 .transfer-sub-warpper {
   height: 450px;
@@ -463,6 +550,77 @@ export default {
       text-align: left;
       word-break: break-all;
     }
+  }
+}
+.content-block {
+  .ava-balance {
+    position: absolute;
+    top: -43px;
+    left: -20px;
+  }
+}
+.transfer-container {
+  .van-field .van-cell__title {
+    max-width: 50px;
+  }
+  .container.padding-15 {
+    .text-danger {
+      left: 50px;
+      bottom: inherit;
+    }
+  }
+  .van-field__button .small-font {
+    color: #333;
+  }
+}
+</style>
+<style lang="scss">
+.transfer-container {
+  .stick .stick-bottom {
+    left: 20px;
+    right: 20px;
+    width: inherit;
+    bottom: 0px;
+    border-radius: 0.28rem;
+  }
+}
+.van-actionsheet {
+  border-radius: 10px 10px 0 0;
+  background-color: #fff;
+}
+.normal-block .van-cell {
+  background-color: #f7f7f7;
+  border-radius: 6px;
+}
+.transfer-sub-warpper {
+  .stick .stick-bottom {
+    left: 20px;
+    right: 20px;
+    width: inherit;
+    border-radius: 0.28rem;
+  }
+}
+// .transfer-actionsheet {
+//   bottom: 20px;
+// }
+// .transfer-container {
+//   background-color: #fff;
+// }
+// .van-modal {
+//   top: -20px;
+// }
+</style>
+<style lang="scss" scoped>
+.normal-block {
+  position: relative;
+  .password-icon {
+    position: absolute;
+    right: 1.11rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .van-field__body .van-field__control {
+    padding-right: 1rem;
   }
 }
 </style>

@@ -22,10 +22,6 @@
               class="x-large-font"
               :label="asset.code"
             >
-              <span
-                slot="button"
-                class="small-font"
-              >≈&nbsp;{{form.amt | market(asset.code, asset.issuer)}}</span>
             </van-field>
             <!--<van-cell style="padding: 14px 0;">-->
             <!--<span slot="title">{{$t('transaction.balance')}}&nbsp;<span class="text-primary">{{balance| currency('', '7') | cutTail}}&nbsp;{{asset.code}}</span></span>-->
@@ -69,7 +65,7 @@
             <small
               class="text-danger"
               v-show="isNeedTag && !form.tag"
-              v-text="$t('transaction.xrpExchangeAddress')"
+              v-text="$t('transaction.requiredTag')"
             ></small>
           </pl-block>
         </div>
@@ -273,6 +269,7 @@ export default {
         password: "",
         memo: ""
       },
+      requireDestinationTag: false,
       loading: false,
       addressValid: true,
       addressActivated: true,
@@ -307,6 +304,13 @@ export default {
             this.trustAsset = true;
           }
         });
+        this.$wallet.checkSettings(this.form.receiveAddress).then(res => {
+          if (res.requireDestinationTag && res.requireDestinationTag == true) {
+            this.requireDestinationTag = true;
+          } else {
+            this.requireDestinationTag = false;
+          }
+        });
       } else {
         this.addressValid = true;
         this.addressActivated = true;
@@ -333,6 +337,9 @@ export default {
     },
     isNeedTag() {
       if (this.form.receiveAddress) {
+        if (this.requireDestinationTag == true) {
+          return true;
+        }
         return this.$wallet.isTradingPlatformAddress(this.form.receiveAddress);
       }
       return false;
@@ -380,7 +387,7 @@ export default {
         this.form.receiveAddress = this.address;
       }
       if (this.transferAmt && this.transferAmt !== "") {
-        this.form.amt = Number(this.transferAmt);
+        this.form.amt = this.transferAmt;
       }
     },
     firstStep() {

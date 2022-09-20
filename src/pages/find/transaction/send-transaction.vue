@@ -17,12 +17,7 @@
         </div>
         <span slot="left">
           <i>
-            <img src="../wallet/img/back.png" alt />
-          </i>
-        </span>
-        <span slot="right">
-          <i class="sao" @click="toScan">
-            <img style="width:1.11rem" src="../../../static/img/sao-black.png" alt />
+            <img src="../../wallet/img/back.png" alt />
           </i>
         </span>
       </van-nav-bar>
@@ -34,18 +29,16 @@
       :asset="asset"
       :transfer-amt="transferAmt"
       :address="address"
+      :tag="tag"
+      :msg="msg"
       @done="done"
     ></component>
   </van-popup>
 </template>
 <script>
-import { AccountType } from "../../wallet/constants";
-import sendEthereum from "./send-ethereum";
-import sendStellar from "./send-stellar";
+import { AccountType } from "../../../wallet/constants";
 import sendRipple from "./send-ripple";
 import sendRipplexag from "./send-ripplexag";
-import sendBitcoin from "./send-bitcoin";
-import QRCodeScanner from "core/utils/QRCodeScanner.js";
 
 export default {
   data() {
@@ -54,15 +47,14 @@ export default {
       asset: {},
       loading: false,
       address: "",
-      transferAmt: ""
+      transferAmt: "",
+      tag: "",
+      msg: "",
     };
   },
   components: {
-    [AccountType.ethereum]: sendEthereum,
-    [AccountType.stellar]: sendStellar,
     [AccountType.ripple]: sendRipple,
     [AccountType.ripplexag]: sendRipplexag,
-    [AccountType.bitcoin]: sendBitcoin
   },
   computed: {
     sendType() {
@@ -73,10 +65,8 @@ export default {
     }
   },
   methods: {
-    show(asset, address, transferAmt) {
+    show(asset, address, transferAmt, tag, msg) {
       console.log(asset);
-      console.log(address);
-      console.log(transferAmt);
       this.asset = asset;
       if (address && address !== "") {
         this.address = address;
@@ -87,6 +77,16 @@ export default {
         this.transferAmt = transferAmt;
       } else {
         this.transferAmt = "";
+      }
+      if (tag && tag !== "") {
+        this.tag = tag;
+      } else {
+        this.tag = "";
+      }
+      if (msg && msg !== "") {
+        this.msg = msg;
+      } else {
+        this.msg = "";
       }
       this.$nextTick(() => {
         if (this.$refs["component"]) {
@@ -102,36 +102,6 @@ export default {
     close() {
       this.showPop = false;
     },
-    toScan() {
-      QRCodeScanner.scan(this).then(
-        res => {
-          if (res && res.address && res.address !== "") {
-            this.address = res.address;
-            if (res.transferAmt) {
-              this.transferAmt = res.transferAmt;
-            }
-            this.$nextTick(() => {
-              if (this.$refs["component"]) {
-                this.$refs["component"].init();
-              }
-            });
-            // this.assetCode = QRCodeScanner.getAssetCodeByAddress(res);
-            // if (this.assetCode && this.assetCode !== '') {
-            //   if (this.$refs['component']) {
-            //     this.$refs['component'].init();
-            //   }
-            //   return;
-            // }
-            // this.$toast('Not invalid address!');
-          } else {
-            this.$toast("非钱包地址，请重新扫描");
-          }
-        },
-        errorMsg => {
-          this.$toast(errorMsg);
-        }
-      );
-    }
   }
 };
 </script>
