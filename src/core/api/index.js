@@ -83,6 +83,18 @@ Vue.api = {
       return null;
     }
   },
+  async getAssets() {
+    try {
+      let url = `https://xrpgen.com/assets.json?timestamp=${(new Date().getTime())}`;
+      let ret = await axios.get(url);
+      return ret.data;
+    } catch (e) {
+      return {
+        "ripple": [],
+        "xrpgen": []
+      };
+    }
+  },
   async getUrl(url) {
     try {
       let ret = await axios.get(url);

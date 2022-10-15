@@ -80,7 +80,8 @@ export default {
       assets: {},
       curreAcctountAddress: "",
       disabled: false,
-      isLoading: false
+      isLoading: false,
+      apiAssets: {},
     };
   },
   computed: {
@@ -106,6 +107,8 @@ export default {
       this.searchValue = "";
       this.type = account.type;
       this.curreAcctountAddress = account.address;
+      const asset = await this.$api.getAssets();
+      this.apiAssets = asset.xrpgen;
       await tokenConfigHepler.settingConfig();
       this.assets = this.getAssets(account.type);
       console.log(this.assets, account);
@@ -139,6 +142,9 @@ export default {
         .join(",");
       // config assets的资产
       let configAssets = this.getConfigAssets(type);
+      for (let item of this.apiAssets) {
+        configAssets.push(item);
+      }
       console.log(configAssets);
       let configAssetsArray = [];
       configAssets.forEach(item => {
