@@ -76,7 +76,7 @@ Vue.api = {
   },
   async getDapp() {
     try {
-      let url = `https://xrpgen.com/dapp.json`;
+      let url = `https://xrpgen.com/dapp.json?timestamp=${(new Date().getTime())}`;
       let ret = await axios.get(url);
       return ret.data;
     } catch (e) {

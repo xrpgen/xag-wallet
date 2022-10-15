@@ -14,13 +14,12 @@
           <span class="text" v-text="$t('setting.addressBook')"></span>
         </span>
       </van-cell>
-      <van-cell @click.native="showShareAction">
+      <!-- <van-cell @click.native="showShareAction">
         <span slot="title" class="cell-title">
-          <!--<i class="ultfont ult-team icon-font"></i>&emsp;-->
           <img :src="dprImg(`join.png`)" class="img-icon" />&emsp;
           <span class="text" v-text="$t('setting.shareXAG')"></span>
         </span>
-      </van-cell>
+      </van-cell> -->
     </van-cell-group>
     <van-cell-group class="margin-top item-block reset-van-cell">
       <!-- <van-cell :value="setting.currencyUnit" @click="toCurrencySelect">
@@ -45,6 +44,13 @@
       </van-cell>
     </van-cell-group>
     <van-cell-group class="margin-top item-block">
+      <van-cell @click.native="syncDapp">
+        <span slot="title" class="cell-title">
+          <img src="static/img/sync.png" class="img-icon" />&emsp;
+          <!--<i class="ultfont ult-detail"></i>&emsp;-->
+          <span class="text" v-text="$t('setting.syncDapp')"></span>
+        </span>
+      </van-cell>
       <van-cell @click.native="showUserProtocol">
         <span slot="title" class="cell-title">
           <img :src="dprImg(`protocol.png`)" class="img-icon" />&emsp;
@@ -122,6 +128,10 @@ export default {
     },
     showUserProtocol() {
       this.$refs.userProtocol.showPopup();
+    },
+    syncDapp() {
+      this.$store.dispatch("setUpdateDappTime", new Date().getTime());
+      this.$toast(this.$t("setting.syncSuccess"));
     }
   }
 };

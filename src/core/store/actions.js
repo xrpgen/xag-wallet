@@ -241,6 +241,16 @@ export const setCurrencyUnit = ({commit}, currencyUnit) => {
 export const setLanguage = ({commit}, value) => {
   commit(types.SET_LANGUAGE, value);
 };
+
+/**
+ * 设置语种
+ * @param commit
+ * @param value
+ */
+export const setUpdateDappTime = ({commit}, value) => {
+  commit(types.SET_UPDATEDAPPTIME, value);
+};
+
 /**
  * 退出钱包的时候设置默认地址为空
  * @param commit
