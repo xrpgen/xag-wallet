@@ -87,6 +87,7 @@ export default {
     });
   },
   checkUpdate (vueInstance, url) {
+    url = url + '?timestamp='+(new Date().getTime());
     return new window.Promise( (resolve, reject) => {
       /* if (window.device.platform === 'iOS') {
         reject(vueInstance.$t('setting.iOSUpdateTip'));

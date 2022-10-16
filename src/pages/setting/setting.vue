@@ -132,6 +132,7 @@ export default {
     syncDapp() {
       this.$store.dispatch("setUpdateDappTime", new Date().getTime());
       this.$toast(this.$t("setting.syncSuccess"));
+      this.$refs.about.refresh();
     }
   }
 };

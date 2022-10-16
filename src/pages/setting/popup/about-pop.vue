@@ -62,18 +62,24 @@ export default {
     },
     toOfficialNet() {
       window.location.href = config.officialWebsite;
-    }
+    },
+    async refresh() {
+      try {
+        let newVersionInfo = await this.$api.checkUpdate(this.updateUrl);
+        this.versionCode = newVersionInfo.version.toString();
+      } catch(err) {
+        console.log(err);
+      }
+      if (!(window.cordova && window.cordova.getAppVersion)) {
+        return;
+      }
+      window.cordova.getAppVersion.getVersionNumber().then(version => {
+        this.curVersionCode = version;
+      });
+    },
   },
-  created() {
-    this.$api.checkUpdate(this.updateUrl).then(newVersionInfo => {
-      this.versionCode = newVersionInfo.version.toString();
-    });
-    if (!(window.cordova && window.cordova.getAppVersion)) {
-      return;
-    }
-    window.cordova.getAppVersion.getVersionNumber().then(version => {
-      this.curVersionCode = version;
-    });
+  async created() {
+    await this.refresh();
   }
 };
 </script>

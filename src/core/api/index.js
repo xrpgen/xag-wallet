@@ -3,6 +3,7 @@ import axios from 'axios';
 import configJS from '../../config';
 Vue.api = {
   checkUpdate (updateUrl) {
+    updateUrl = updateUrl + '?timestamp='+(new Date().getTime());
     return new window.Promise((resolve, reject) => {
       if (!(window.cordova && window.cordova.getAppVersion)) {
         reject();
