@@ -129,10 +129,18 @@ export default {
     showUserProtocol() {
       this.$refs.userProtocol.showPopup();
     },
-    syncDapp() {
+    async syncDapp() {
       this.$store.dispatch("setUpdateDappTime", new Date().getTime());
       this.$toast(this.$t("setting.syncSuccess"));
       this.$refs.about.refresh();
+      const asset = await this.$api.getAssets();
+      if (asset != null) {
+        this.$collecitons.assetTemp.updateAssetTemp(assetTemp => {
+          assetTemp.ripple = asset.ripple;
+          assetTemp.xrpgen = asset.xrpgen;
+          return;
+        });
+      }
     }
   }
 };

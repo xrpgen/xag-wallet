@@ -8,6 +8,7 @@ import setting from './setting';
 import address from './address';
 import history from './history';
 import assetConfig from './assetConfig';
+import assetTemp from './assetTemp';
 import tempHistory from './tempHistory';
 import tradepair from './tradepair';
 import accountDefault from './accountDefaultConfig';
@@ -51,6 +52,7 @@ const loadData = callback => {
       account: account.newInstance(db),
       identity: identity.newInstance(db),
       asset: asset.newInstance(db),
+      assetTemp: assetTemp.newInstance(db),
       setting: setting.newInstance(db),
       address: address.newInstance(db),
       history: history.newInstance(db),

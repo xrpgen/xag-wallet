@@ -1,9 +1,11 @@
 import coins from 'src/wallet/coins';
 import {AccountType} from "../../../wallet/constants";
+import Vue from 'vue';
 
 export default{
   methods: {
     getConfigAssets (type) {
+      let assetTemp = Vue.collecitons.assetTemp.findAssetTemp();
       let coin = coins[type];
       let ret = [];
       switch (type) {
@@ -34,6 +36,9 @@ export default{
               }
             });
           });
+          for (let item of assetTemp.ripple) {
+            ret.push(item);
+          }
           return ret;
         }
         case AccountType.ripplexag:
@@ -52,6 +57,9 @@ export default{
               }
             });
           });
+          for (let item of assetTemp.xrpgen) {
+            ret.push(item);
+          }
           return ret;
         }
         case AccountType.stellar:

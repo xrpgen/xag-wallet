@@ -90,10 +90,7 @@ Vue.api = {
       let ret = await axios.get(url);
       return ret.data;
     } catch (e) {
-      return {
-        "ripple": [],
-        "xrpgen": []
-      };
+      return null;
     }
   },
   async getUrl(url) {

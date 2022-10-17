@@ -164,6 +164,12 @@ export const initData = ({commit, state, dispatch}) => {
     setting = {...state.setting};
     Vue.collecitons.setting.insertSetting(JSON.parse(JSON.stringify(setting)));
   }
+
+  let assetTemp = Vue.collecitons.assetTemp.findAssetTemp();
+  if (!assetTemp) {
+    Vue.collecitons.assetTemp.insertAssetTemp();
+  }
+
   tokenConfigHepler.settingConfig();
 
   // 设置比特币的默认网络
