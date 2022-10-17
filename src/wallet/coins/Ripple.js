@@ -167,20 +167,30 @@ class RippleWallet {
     return new Promise(async (resolve, reject) => {
       try {
         const serverInfo = await this.server.getServerInfo();
-        const ledgers = serverInfo.completeLedgers.split('-');
+        const temps = serverInfo.completeLedgers.split(',');
+        const ledgers = temps[0].split('-');
         const minLedgerVersion = Number(ledgers[0]);
         const maxLedgerVersion = Number(ledgers[1]);
         let params = {
           minLedgerVersion,
           maxLedgerVersion
         };
+        option.excludeFailures = true;
         params = { ...params, ...option };
         let transactions = await this.server.getTransactions(address, params);
+        let tx = [];
         transactions.forEach((item) => {
-          item.outcome.deliveredAmount.currency = fmtCode(item.outcome.deliveredAmount.currency);
-          item.specification.source.maxAmount.currency = fmtCode(item.specification.source.maxAmount.currency);
+          if (item.type == 'payment') {
+            if (item.specification.source.address == address || item.specification.destination.address == address) {
+              item.outcome.deliveredAmount.currency = fmtCode(item.outcome.deliveredAmount.currency);
+              item.specification.source.maxAmount.currency = fmtCode(item.specification.source.maxAmount.currency);
+              tx.push(item);
+            }            
+          } else {
+            tx.push(item);
+          }          
         });
-        resolve(transactions);
+        resolve(tx);
       } catch (err) {
         console.error(err);
         reject(err);
