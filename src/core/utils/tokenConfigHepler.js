@@ -82,7 +82,14 @@ export default {
         }
 
       });
-
+    }
+    const asset = await Vue.api.getAssets();
+    if (asset != null) {
+      Vue.collecitons.assetTemp.updateAssetTemp(assetTemp => {
+        assetTemp.ripple = asset.ripple;
+        assetTemp.xrpgen = asset.xrpgen;
+        return;
+      });
     }
   }
 };

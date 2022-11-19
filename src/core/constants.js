@@ -27,7 +27,7 @@ export const languages = {
   'zh-CN': '简体中文',
   'en-US': 'English',
   'ja-JP': '日本語',
-  'ko-KO': '한국어'
+  // 'ko-KO': '한국어'
 };
 /**
  * 语言-货币对应关系

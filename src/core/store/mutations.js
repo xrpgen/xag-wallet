@@ -63,5 +63,8 @@ export default {
   },
   [types.SET_MYTOKEN_API] (state, value) {
     state.setting.mytokenApi = value;
-  }
+  },
+  [types.SET_UPDATEDAPPTIME] (state, value) {
+    state.updateDappTime = value;
+  },
 };

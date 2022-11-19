@@ -252,7 +252,10 @@
     "updateTip": "更新中、お待ちください...",
     "downloaded": "既にダウンロード",
     "iOSUpdateTip": "最新版をダウンロードするには、appstoreに行ってください。",
-    "privacyMode": "プライバシーモード"
+    "privacyMode": "プライバシーモード",
+    "syncDapp": "同期 Dapp",
+    "syncSuccess": "同期に成功しました",
+    "syncFail": "同期に失敗しました"
   },
   "address": {
     "addAddress": "アドレスを追加する",

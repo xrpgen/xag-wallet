@@ -68,8 +68,9 @@ const state = {
       [AccountType.ethereum]:
         "wss://mainnet.infura.io/ws/v3/ef03818b6af741aea80bcdee661fdfa3",
       [AccountType.bitcoin]: "https://blockchain.info"
-    }
-  }
+    },
+  },
+  updateDappTime: "",
 };
 
 export default new Vuex.Store({

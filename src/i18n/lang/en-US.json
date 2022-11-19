@@ -249,7 +249,10 @@
     "updateNow": "Update Now",
     "updateTip": "Updating, please wait...",
     "downloaded": "downloaded",
-    "iOSUpdateTip": "Please go appstore to download latest version！"
+    "iOSUpdateTip": "Please go appstore to download latest version！",
+    "syncDapp": "Sync Dapp",
+    "syncSuccess": "Sync succeeded",
+    "syncFail": "Sync failed"
   },
   "address": {
     "addAddress": "Add Address",

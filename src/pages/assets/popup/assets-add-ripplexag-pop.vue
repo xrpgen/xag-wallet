@@ -80,7 +80,7 @@ export default {
       assets: {},
       curreAcctountAddress: "",
       disabled: false,
-      isLoading: false
+      isLoading: false,
     };
   },
   computed: {

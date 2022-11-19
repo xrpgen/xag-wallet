@@ -251,7 +251,10 @@
     "updateTip": "업데이트 중입니다. 잠시 기다려주십시오...",
     "downloaded": "다운로드 됨",
     "iOSUpdateTip": "최신 버전을 다운로드하려면 appstore로 이동하십시오!",
-    "privacyMode": "개인 정보 보호 모드"
+    "privacyMode": "개인 정보 보호 모드",
+    "syncDapp": "동기화 Dapp",
+    "syncSuccess": "동기화 성공",
+    "syncFail": "동기화 실패"
   },
   "address": {
     "addAddress": "주소 추가",

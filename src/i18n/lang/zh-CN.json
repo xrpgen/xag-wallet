@@ -251,7 +251,10 @@
     "updateTip": "正在更新，请稍后...",
     "downloaded": "已下载",
     "iOSUpdateTip": "请前往appstore下载最新版本！",
-    "privacyMode": "隐私模式"
+    "privacyMode": "隐私模式",
+    "syncDapp": "同步 Dapp",
+    "syncSuccess": "同步成功",
+    "syncFail": "同步失败"
   },
   "address": {
     "addAddress": "添加地址",

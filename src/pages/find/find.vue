@@ -40,6 +40,10 @@ export default {
       this.dappList = [];
       this.getDappList(val);
     },
+    "$store.state.updateDappTime": function() {
+      this.dappList = [];
+      this.getDappList(this.$store.state.setting.language);
+    },
   },
   computed: {
     type() {

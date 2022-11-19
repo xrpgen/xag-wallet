@@ -164,6 +164,12 @@ export const initData = ({commit, state, dispatch}) => {
     setting = {...state.setting};
     Vue.collecitons.setting.insertSetting(JSON.parse(JSON.stringify(setting)));
   }
+
+  let assetTemp = Vue.collecitons.assetTemp.findAssetTemp();
+  if (!assetTemp) {
+    Vue.collecitons.assetTemp.insertAssetTemp();
+  }
+
   tokenConfigHepler.settingConfig();
 
   // 设置比特币的默认网络
@@ -241,6 +247,16 @@ export const setCurrencyUnit = ({commit}, currencyUnit) => {
 export const setLanguage = ({commit}, value) => {
   commit(types.SET_LANGUAGE, value);
 };
+
+/**
+ * 设置语种
+ * @param commit
+ * @param value
+ */
+export const setUpdateDappTime = ({commit}, value) => {
+  commit(types.SET_UPDATEDAPPTIME, value);
+};
+
 /**
  * 退出钱包的时候设置默认地址为空
  * @param commit
