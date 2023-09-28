@@ -23,12 +23,16 @@ const state = {
     [AccountType.ripple]: [
       { value: "wss://xrplcluster.com", type: "public" },
       { value: "wss://xrpl.ws", type: "public" },
-      { value: "wss://s1.ripple.com", type: "public" },
+      // { value: "wss://s1.ripple.com", type: "public" },
     ],
     [AccountType.ripplexag]: [
       { value: "wss://g1.xrpgen.com", type: "public" },
       { value: "wss://g2.xrpgen.com", type: "public" },
-      { value: "ws://g3.xrpgen.com:6006", type: "backup" },
+      { value: "wss://jp.xag-labs.com", type: "public" },
+      { value: "wss://us.xag-labs.com", type: "public" },
+      { value: "wss://eu.xag-labs.com", type: "public" },
+      { value: "wss://sg.xag-labs.com", type: "public" },
+      // { value: "ws://g3.xrpgen.com:6006", type: "backup" },
     ],
     [AccountType.ethereum]: [
       // {value: 'https://mainnet.infura.io/', type: 'public'},
