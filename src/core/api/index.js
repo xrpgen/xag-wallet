@@ -77,7 +77,7 @@ Vue.api = {
   },
   async getDapp() {
     try {
-      let url = `https://xrpgen.com/dapp.json?timestamp=${(new Date().getTime())}`;
+      let url = `https://xag-labs.com/dapp.json?timestamp=${(new Date().getTime())}`;
       let ret = await axios.get(url);
       return ret.data;
     } catch (e) {
@@ -86,7 +86,7 @@ Vue.api = {
   },
   async getAssets() {
     try {
-      let url = `https://xrpgen.com/assets.json?timestamp=${(new Date().getTime())}`;
+      let url = `https://xag-labs.com/assets.json?timestamp=${(new Date().getTime())}`;
       let ret = await axios.get(url);
       return ret.data;
     } catch (e) {
